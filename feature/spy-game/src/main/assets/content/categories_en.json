@@ -1,0 +1,326 @@
+{
+  "language": "en",
+  "version": 1,
+  "categories": [
+    {
+      "id": "wild_animals_en",
+      "name": "Wild Animals",
+      "words": [
+        "Lion",
+        "Elephant",
+        "Giraffe",
+        "Tiger",
+        "Zebra",
+        "Gorilla",
+        "Crocodile",
+        "Rhinoceros",
+        "Kangaroo",
+        "Camel"
+      ]
+    },
+    {
+      "id": "sea_creatures_en",
+      "name": "Sea Creatures",
+      "words": [
+        "Shark",
+        "Octopus",
+        "Dolphin",
+        "Crab",
+        "Starfish",
+        "Whale",
+        "Jellyfish",
+        "Swordfish",
+        "Seahorse",
+        "Lobster"
+      ]
+    },
+    {
+      "id": "fruits_en",
+      "name": "Fruits",
+      "words": [
+        "Watermelon",
+        "Pineapple",
+        "Banana",
+        "Cherry",
+        "Strawberry",
+        "Grapes",
+        "Pear",
+        "Lemon",
+        "Coconut",
+        "Mango"
+      ]
+    },
+    {
+      "id": "vegetables_en",
+      "name": "Vegetables",
+      "words": [
+        "Carrot",
+        "Pumpkin",
+        "Broccoli",
+        "Corn",
+        "Onion",
+        "Bell Pepper",
+        "Eggplant",
+        "Tomato",
+        "Cucumber",
+        "Potato"
+      ]
+    },
+    {
+      "id": "transport_en",
+      "name": "Transport",
+      "words": [
+        "Bicycle",
+        "Scooter",
+        "Helicopter",
+        "Submarine",
+        "Tractor",
+        "Sailboat",
+        "Train",
+        "Tank",
+        "Hot Air Balloon",
+        "Airplane"
+      ]
+    },
+    {
+      "id": "musical_instruments_en",
+      "name": "Musical Instruments",
+      "words": [
+        "Guitar",
+        "Drum",
+        "Violin",
+        "Trumpet",
+        "Piano",
+        "Saxophone",
+        "Harp",
+        "Flute",
+        "Banjo",
+        "Ukulele"
+      ]
+    },
+    {
+      "id": "sports_en",
+      "name": "Sports",
+      "words": [
+        "Soccer",
+        "Tennis",
+        "Boxing",
+        "Surfing",
+        "Hockey",
+        "Basketball",
+        "Archery",
+        "Skateboarding",
+        "Golf",
+        "Bowling"
+      ]
+    },
+    {
+      "id": "pets_en",
+      "name": "Pets",
+      "words": [
+        "Cat",
+        "Dog",
+        "Parrot",
+        "Hamster",
+        "Rabbit",
+        "Turtle",
+        "Goldfish",
+        "Guinea Pig",
+        "Hedgehog",
+        "Snake"
+      ]
+    },
+    {
+      "id": "food_en",
+      "name": "Food",
+      "words": [
+        "Pizza",
+        "Sushi",
+        "Burger",
+        "Ice Cream",
+        "Cake",
+        "Hot Dog",
+        "Pancakes",
+        "Donut",
+        "Noodles",
+        "Sandwich"
+      ]
+    },
+    {
+      "id": "insects_en",
+      "name": "Insects",
+      "words": [
+        "Butterfly",
+        "Bee",
+        "Spider",
+        "Ant",
+        "Dragonfly",
+        "Beetle",
+        "Grasshopper",
+        "Caterpillar",
+        "Firefly",
+        "Scorpion"
+      ]
+    },
+    {
+      "id": "space_en",
+      "name": "Space",
+      "words": [
+        "Rocket",
+        "Planet",
+        "Comet",
+        "Star",
+        "UFO",
+        "Moon",
+        "Satellite",
+        "Telescope",
+        "Asteroid",
+        "Black Hole"
+      ]
+    },
+    {
+      "id": "weather_en",
+      "name": "Weather",
+      "words": [
+        "Rainbow",
+        "Lightning",
+        "Snowman",
+        "Tornado",
+        "Cloud",
+        "Sun",
+        "Snowflake",
+        "Rain",
+        "Storm Cloud",
+        "Weathervane"
+      ]
+    },
+    {
+      "id": "clothing_en",
+      "name": "Clothing & Accessories",
+      "words": [
+        "Hat",
+        "Mittens",
+        "Sneakers",
+        "Tie",
+        "Scarf",
+        "Sunglasses",
+        "Umbrella",
+        "Backpack",
+        "Socks",
+        "Crown"
+      ]
+    },
+    {
+      "id": "birds_en",
+      "name": "Birds",
+      "words": [
+        "Eagle",
+        "Flamingo",
+        "Pelican",
+        "Owl",
+        "Peacock",
+        "Penguin",
+        "Ostrich",
+        "Toucan",
+        "Hummingbird",
+        "Parrot"
+      ]
+    },
+    {
+      "id": "tools_en",
+      "name": "Tools",
+      "words": [
+        "Hammer",
+        "Wrench",
+        "Saw",
+        "Drill",
+        "Shovel",
+        "Screwdriver",
+        "Axe",
+        "Rake",
+        "Pliers",
+        "Wheelbarrow"
+      ]
+    },
+    {
+      "id": "furniture_en",
+      "name": "Home & Furniture",
+      "words": [
+        "Sofa",
+        "Lamp",
+        "Wardrobe",
+        "Bathtub",
+        "Fireplace",
+        "Hammock",
+        "Armchair",
+        "Chandelier",
+        "Bookshelf",
+        "Refrigerator"
+      ]
+    },
+    {
+      "id": "plants_en",
+      "name": "Flowers & Plants",
+      "words": [
+        "Rose",
+        "Sunflower",
+        "Tulip",
+        "Dandelion",
+        "Daisy",
+        "Lotus",
+        "Orchid",
+        "Cactus",
+        "Bamboo",
+        "Fern"
+      ]
+    },
+    {
+      "id": "buildings_en",
+      "name": "Buildings & Structures",
+      "words": [
+        "Lighthouse",
+        "Castle",
+        "Pyramid",
+        "Windmill",
+        "Tower",
+        "Church",
+        "Bridge",
+        "Igloo",
+        "Skyscraper",
+        "Tent"
+      ]
+    },
+    {
+      "id": "holiday_en",
+      "name": "Holiday",
+      "words": [
+        "Christmas Tree",
+        "Fireworks",
+        "Birthday Cake",
+        "Balloon",
+        "Pumpkin",
+        "Mask",
+        "Gift Box",
+        "Wreath",
+        "Party Popper",
+        "Candy Cane"
+      ]
+    },
+    {
+      "id": "stationery_en",
+      "name": "Stationery",
+      "words": [
+        "Pencil",
+        "Eraser",
+        "Scissors",
+        "Ruler",
+        "Paperclip",
+        "Thumbtack",
+        "Tape",
+        "Pencil Sharpener",
+        "Marker",
+        "Compass"
+      ]
+    }
+  ]
+}

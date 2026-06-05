@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="game_name">Spy</string>
+    <!--
+        Слово «Шпион» на карточке шпиона.
+        Специально не хранится в JSON — берётся из ресурсов,
+        чтобы автоматически локализоваться вместе с языком устройства.
+    -->
+    <string name="spy_word">Spy</string>
+
+    <!-- ── Игровой экран ──────────────────────────────────────────────────── -->
+    <string name="settings_action_desc">Settings</string>
+    <string name="loading_game">Loading game…</string>
+    <string name="error_title">Something went wrong</string>
+    <string name="retry">Retry</string>
+    <string name="game_complete_title">All cards have been seen!</string>
+    <string name="game_complete_subtitle">Discuss who the spy is</string>
+
+    <!-- ── Кнопка «Новая игра» ───────────────────────────────────────────── -->
+    <string name="refresh_game_label">New Game</string>
+    <string name="refresh_game_desc">Start a new game with a different location</string>
+
+    <!-- ── Карточка ──────────────────────────────────────────────────────── -->
+    <!-- %d — порядковый номер карточки (1, 2, 3, …) -->
+    <string name="card_number_format">No. %d</string>
+
+    <!-- ── Экран настроек ────────────────────────────────────────────────── -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_back_desc">Back</string>
+    <string name="players_section_title">Players</string>
+    <string name="players_count_hint">Number of participants</string>
+    <string name="decrease_players_desc">Decrease</string>
+    <string name="increase_players_desc">Increase</string>
+    <string name="language_section_title">Content language</string>
+    <string name="language_system_label">Auto</string>
+    <string name="language_russian_label">Rus</string>
+    <string name="language_english_label">Eng</string>
+</resources>

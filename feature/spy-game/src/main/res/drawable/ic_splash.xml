@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Иконка для Splash Screen — стилизованный «глаз шпиона».
+
+    Размер 108×108dp — стандарт адаптивных иконок Android.
+    Иконка центрируется поверх windowSplashScreenBackground.
+
+    Цвет fill — splash_icon_tint (#BAC3FF, тёмный primary).
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Внешний контур глаза (миндалевидная форма) -->
+    <path
+        android:fillColor="#BAC3FF"
+        android:pathData="
+            M54,28
+            C30,28 12,54 12,54
+            C12,54 30,80 54,80
+            C78,80 96,54 96,54
+            C96,54 78,28 54,28 Z
+            M54,70
+            C43.5,70 35,61.5 35,51
+            C35,40.5 43.5,32 54,32
+            C64.5,32 73,40.5 73,51
+            C73,61.5 64.5,70 54,70 Z" />
+
+    <!-- Зрачок — центральный круг -->
+    <path
+        android:fillColor="#1B1B1F"
+        android:pathData="
+            M54,39
+            C47.4,39 42,44.4 42,51
+            C42,57.6 47.4,63 54,63
+            C60.6,63 66,57.6 66,51
+            C66,44.4 60.6,39 54,39 Z" />
+
+    <!-- Блик (световой рефлекс) — придаёт объём -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillAlpha="0.6"
+        android:pathData="
+            M48,43
+            C46.3,44.7 45,47.2 45,49
+            C45,50.1 45.9,51 47,51
+            C48.1,51 49,50.1 49,49
+            C49,47.9 49.9,46 51,45
+            C52.1,44 52,42 50.5,42
+            C49.5,42 48.7,42.3 48,43 Z" />
+
+</vector>

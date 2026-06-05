@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <style name="Theme.BoardGames" parent="Theme.Material3.DayNight.NoActionBar" />
 
-    <style name="Theme.BoardGames" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.BoardGames.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="windowSplashScreenIconBackgroundColor">@color/splash_background</item>
+        <item name="postSplashScreenTheme">@style/Theme.BoardGames</item>
+    </style>
 </resources>

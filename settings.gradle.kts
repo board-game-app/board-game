@@ -11,6 +11,7 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
@@ -20,5 +21,10 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "BoardGames"
+
+// ── Модули проекта ────────────────────────────────────────────────────────────
 include(":app")
- 
+
+// Каждая игра — отдельный feature-модуль.
+// Добавление новой игры: include(":feature:sound-quiz") и создать модуль.
+include(":feature:spy-game")
