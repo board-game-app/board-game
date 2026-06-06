@@ -1,8 +1,8 @@
 [versions]
 # --- Build tools ---
-agp           = "8.13.2"
+agp           = "9.2.1"
 kotlin        = "2.2.20"
-kotlinKsp     = "2.2.20-2.0.3"
+kotlinKsp     = "2.3.2"
 
 # --- Мета-информация приложения ---
 versionCode = "1"
@@ -75,7 +75,7 @@ androidxTestRunner = "1.6.2"
 androidxTestRules  = "1.6.1"
 
 # Hilt Testing — для @HiltAndroidTest (интеграционные тесты с реальным DI-графом)
-hiltTesting = "2.57.1"
+hiltTesting = "2.59.2"
 
 
 [libraries]

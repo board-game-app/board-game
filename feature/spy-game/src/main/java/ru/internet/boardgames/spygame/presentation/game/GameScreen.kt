@@ -15,12 +15,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Numbers
 import androidx.compose.material.icons.rounded.SentimentDissatisfied
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -73,12 +75,13 @@ private fun GameContent(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text       = stringResource(R.string.game_name),
+                        text       = stringResource(R.string.app_name),
                         style      = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
                 },
                 actions = {
+                    // Настройки — обычный IconButton (менее акцентированный)
                     IconButton(onClick = onOpenSettings) {
                         Icon(
                             imageVector        = Icons.Rounded.Settings,
@@ -93,8 +96,6 @@ private fun GameContent(
         }
     ) { innerPadding ->
 
-        // contentKey гарантирует, что AnimatedContent не перезапускает анимацию
-        // при каждом изменении timerProgress (20 раз/сек)
         AnimatedContent(
             targetState    = ContentState.from(uiState),
             transitionSpec = { fadeIn(tween(300)) togetherWith fadeOut(tween(300)) },
@@ -129,7 +130,9 @@ private fun GameContent(
                         RefreshButton(
                             onClick   = onRefresh,
                             isLoading = uiState.isLoading,
-                            modifier  = Modifier.align(Alignment.BottomCenter).padding(bottom = 32.dp)
+                            modifier  = Modifier
+                                .align(Alignment.BottomCenter)
+                                .padding(bottom = 32.dp)
                         )
                     }
                 }
@@ -140,26 +143,25 @@ private fun GameContent(
 
 private enum class ContentState {
     LOADING, ERROR, PLAYING, GAME_COMPLETE;
-
     companion object {
-        fun from(state: GameUiState): ContentState = when {
-            state.isLoading      -> LOADING
-            state.error != null  -> ERROR
-            state.isGameComplete -> GAME_COMPLETE
-            state.session != null -> PLAYING
-            else                 -> LOADING
+        fun from(s: GameUiState) = when {
+            s.isLoading       -> LOADING
+            s.error != null   -> ERROR
+            s.isGameComplete  -> GAME_COMPLETE
+            s.session != null -> PLAYING
+            else              -> LOADING
         }
     }
 }
 
 @Composable
 private fun LoadingContent(modifier: Modifier = Modifier) {
-    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+    Box(modifier.fillMaxSize(), Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            CircularProgressIndicator(modifier = Modifier.size(48.dp))
+            CircularProgressIndicator(Modifier.size(48.dp))
             Spacer(Modifier.height(16.dp))
             Text(
-                text  = stringResource(R.string.loading_game),
+                stringResource(R.string.loading_game),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -169,57 +171,52 @@ private fun LoadingContent(modifier: Modifier = Modifier) {
 
 @Composable
 private fun ErrorContent(message: String, onRetry: () -> Unit, modifier: Modifier = Modifier) {
-    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Column(
-            modifier            = Modifier.padding(32.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
+    Box(modifier.fillMaxSize(), Alignment.Center) {
+        Column(    modifier = Modifier.padding(32.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally) {
             Icon(
-                imageVector        = Icons.Rounded.SentimentDissatisfied,
-                contentDescription = null,
-                modifier           = Modifier.size(64.dp),
-                tint               = MaterialTheme.colorScheme.error
+                Icons.Rounded.SentimentDissatisfied, null,
+                Modifier.size(64.dp), tint = MaterialTheme.colorScheme.error
             )
             Spacer(Modifier.height(16.dp))
             Text(
-                text       = stringResource(R.string.error_title),
-                style      = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                textAlign  = TextAlign.Center
+                stringResource(R.string.error_title),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold, textAlign = TextAlign.Center
             )
             Spacer(Modifier.height(8.dp))
             Text(
-                text      = message,
-                style     = MaterialTheme.typography.bodyMedium,
-                color     = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center
+                message, style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center
             )
             Spacer(Modifier.height(24.dp))
-            Button(onClick = onRetry) { Text(stringResource(R.string.retry)) }
+            Button(onRetry) { Text(stringResource(R.string.retry)) }
         }
     }
 }
 
 @Composable
-private fun GameCompleteContent(onNewGame: () -> Unit, isLoading: Boolean, modifier: Modifier = Modifier) {
-    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+private fun GameCompleteContent(
+    onNewGame: () -> Unit,
+    isLoading: Boolean,
+    modifier: Modifier = Modifier
+) {
+    Box(modifier.fillMaxSize(), Alignment.Center) {
         Column(
-            modifier            = Modifier.padding(32.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            modifier = Modifier.padding(32.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text       = stringResource(R.string.game_complete_title),
-                style      = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-                textAlign  = TextAlign.Center
+                stringResource(R.string.game_complete_title),
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold, textAlign = TextAlign.Center
             )
             Text(
-                text      = stringResource(R.string.game_complete_subtitle),
-                style     = MaterialTheme.typography.bodyLarge,
-                color     = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center
+                stringResource(R.string.game_complete_subtitle),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center
             )
             Spacer(Modifier.height(16.dp))
             RefreshButton(onClick = onNewGame, isLoading = isLoading)
@@ -227,16 +224,20 @@ private fun GameCompleteContent(onNewGame: () -> Unit, isLoading: Boolean, modif
     }
 }
 
-@Preview(showBackground = true, name = "GameScreen — Loading")
+// ─── Previews ─────────────────────────────────────────────────────────────────
+
+@Preview(showBackground = true, name = "С FilledTonalIconButton счётчика")
 @Composable
-private fun GameLoadingPreview() {
-    SpyGameTheme { GameContent(GameUiState(isLoading = true), {}, {}, {}, {}) }
+private fun WithCounterPreview() {
+    SpyGameTheme {
+        GameContent(GameUiState(isLoading = true), {}, {}, {}, {})
+    }
 }
 
-@Preview(showBackground = true, name = "GameScreen — Error")
+@Preview(showBackground = true, name = "Без кнопки счётчика")
 @Composable
-private fun GameErrorPreview() {
+private fun WithoutCounterPreview() {
     SpyGameTheme {
-        GameContent(GameUiState(isLoading = false, error = "DB is empty"), {}, {}, {}, {})
+        GameContent(GameUiState(isLoading = true), {}, {}, {}, {})
     }
 }

@@ -31,30 +31,33 @@ import ru.internet.boardgames.R
 import ru.internet.boardgames.ui.BoardGamesTheme
 
 /**
- * Главный экран: сетка доступных настольных игр.
+ * Главный экран: сетка доступных мини-приложений.
  *
- * Структура масштабируется: добавь игру в [gameItems] и передай
- * соответствующий callback в параметры функции.
- *
- * @param onNavigateToSpyGame  Навигация в фичу SpyGame.
+ * Счётчик — полноправная карточка в сетке наравне с играми.
+ * Из HomeScreen он открывается как полный экран (navigate).
+ * Из игр — как BottomSheet (см. NavGraph + SpyGameNavGraph).
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     onNavigateToSpyGame: () -> Unit,
-    // onNavigateToSoundQuiz: () -> Unit,  ← будущая игра
+    onNavigateToCounter: () -> Unit,       
     modifier: Modifier = Modifier
 ) {
-    // Список игр — модель для сетки.
-    // При добавлении Sound Quiz: добавить элемент и передать нужный callback.
-    val games = listOf(
+    val items = listOf(
         GameEntry(
-            emoji       = "🕵️",
-            titleRes    = R.string.spy_game_title,
-            descRes     = R.string.spy_game_description,
-            onClick     = onNavigateToSpyGame
-        )
-        // GameEntry("🎵", R.string.sound_quiz_title, R.string.sound_quiz_description, onNavigateToSoundQuiz)
+            emoji    = "🔢",                
+            titleRes = R.string.counter_title,
+            descRes  = R.string.counter_description,
+            onClick  = onNavigateToCounter
+        ),
+        GameEntry(
+            emoji    = "🕵️",
+            titleRes = R.string.spy_game_title,
+            descRes  = R.string.spy_game_description,
+            onClick  = onNavigateToSpyGame
+        ),
+        // Будущие игры добавляются сюда без изменения остального кода
     )
 
     Scaffold(
@@ -75,19 +78,16 @@ fun HomeScreen(
         }
     ) { innerPadding ->
         LazyVerticalGrid(
-            columns            = GridCells.Adaptive(minSize = 160.dp),
-            modifier           = Modifier
+            columns               = GridCells.Adaptive(minSize = 160.dp),
+            modifier              = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
-            contentPadding     = PaddingValues(16.dp),
+            contentPadding        = PaddingValues(16.dp),
             verticalArrangement   = Arrangement.spacedBy(16.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            items(
-                count = games.size,
-                key   = { games[it].titleRes }
-            ) { index ->
-                GameCard(entry = games[index])
+            items(count = items.size, key = { items[it].titleRes }) { i ->
+                GameCard(entry = items[i])
             }
         }
     }
@@ -104,10 +104,7 @@ private data class GameEntry(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun GameCard(
-    entry    : GameEntry,
-    modifier : Modifier = Modifier
-) {
+private fun GameCard(entry: GameEntry, modifier: Modifier = Modifier) {
     ElevatedCard(
         onClick   = entry.onClick,
         modifier  = modifier.fillMaxWidth(),
@@ -120,18 +117,15 @@ private fun GameCard(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text(
-                text     = entry.emoji,
-                fontSize = 48.sp
-            )
-            Spacer(modifier = Modifier.height(12.dp))
+            Text(text = entry.emoji, fontSize = 48.sp)
+            Spacer(Modifier.height(12.dp))
             Text(
                 text       = stringResource(entry.titleRes),
                 style      = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 textAlign  = TextAlign.Center
             )
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(Modifier.height(4.dp))
             Text(
                 text      = stringResource(entry.descRes),
                 style     = MaterialTheme.typography.bodySmall,
@@ -142,21 +136,10 @@ private fun GameCard(
     }
 }
 
-// ─── Previews ─────────────────────────────────────────────────────────────────
-
-@Preview(showBackground = true)
+@Preview(showBackground = true, locale = "ru")
 @Composable
 private fun HomeScreenPreview() {
-    BoardGamesTheme {
-        HomeScreen(onNavigateToSpyGame = {})
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun HomeScreenMultipleGamesPreview() {
-    BoardGamesTheme {
-        // Демонстрирует как выглядит сетка с двумя играми
-        HomeScreen(onNavigateToSpyGame = {})
+    BoardGamesTheme(darkTheme = true) {
+        HomeScreen(onNavigateToSpyGame = {}, onNavigateToCounter = {})
     }
 }

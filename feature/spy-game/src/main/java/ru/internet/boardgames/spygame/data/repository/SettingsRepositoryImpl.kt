@@ -18,14 +18,7 @@ class SettingsRepositoryImpl @Inject constructor(
     /** Flow числа игроков (эмитит при каждом изменении). */
     override val playerCount: Flow<Int> = settingsDataStore.playerCount
 
-    /** Flow кода языка: "ru", "en" или "system". */
-    override val language: Flow<String> = settingsDataStore.language
-
     override suspend fun setPlayerCount(count: Int) {
         settingsDataStore.setPlayerCount(count)
-    }
-
-    override suspend fun setLanguage(language: String) {
-        settingsDataStore.setLanguage(language)
     }
 }

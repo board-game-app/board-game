@@ -19,10 +19,7 @@ import javax.inject.Inject
  * Запись в DataStore — через [SaveSettingsUseCase] — происходит немедленно
  * при каждом изменении: отдельная кнопка «Сохранить» не нужна.
  *
- * Почему [MutableStateFlow] вместо [stateIn]:
- * - Нам нужен начальный [SettingsUiState] с [isLoading] = true до первого эмита.
- * - [stateIn] с [SharingStarted.WhileSubscribed] может давать нежелательные
- *   реэмиты при пересоздании подписчика. [MutableStateFlow] + [update] проще.
+ * Язык убран из настроек: он определяется системной локалью устройства.
  */
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
@@ -47,7 +44,6 @@ class SettingsViewModel @Inject constructor(
                 _uiState.update { current ->
                     current.copy(
                         playerCount = settings.playerCount,
-                        language = AppLanguage.fromCode(settings.language),
                         isLoading = false
                     )
                 }
@@ -67,13 +63,6 @@ class SettingsViewModel @Inject constructor(
     fun setPlayerCount(count: Int) {
         viewModelScope.launch {
             saveSettingsUseCase.savePlayerCount(count)
-        }
-    }
-
-    /** Изменяет язык. Изменение сразу отражается в GameViewModel через Flow. */
-    fun setLanguage(language: AppLanguage) {
-        viewModelScope.launch {
-            saveSettingsUseCase.saveLanguage(language.code)
         }
     }
 }

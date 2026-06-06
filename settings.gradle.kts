@@ -28,3 +28,4 @@ include(":app")
 // Каждая игра — отдельный feature-модуль.
 // Добавление новой игры: include(":feature:sound-quiz") и создать модуль.
 include(":feature:spy-game")
+include(":feature:counter")

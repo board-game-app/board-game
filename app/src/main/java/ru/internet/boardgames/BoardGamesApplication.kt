@@ -27,9 +27,6 @@ class BoardGamesApplication : Application() {
     @Inject
     lateinit var spyGameContentLoader: ContentLoader
 
-    // Будущие игры:
-    // @Inject lateinit var soundQuizContentLoader: SoundQuizContentLoader
-
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     override fun onCreate() {
@@ -40,7 +37,6 @@ class BoardGamesApplication : Application() {
             runCatching { spyGameContentLoader.seedIfNeeded() }
                 .onFailure { it.printStackTrace() }
 
-            // runCatching { soundQuizContentLoader.seedIfNeeded() }
         }
     }
 }

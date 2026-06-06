@@ -4,4 +4,7 @@
 
     <string name="spy_game_title">Шпион</string>
     <string name="spy_game_description">Найдите шпиона среди игроков</string>
+
+    <string name="counter_title">Счётчик</string>
+    <string name="counter_description">Ведите счёт по игровым сессиям</string>
 </resources>

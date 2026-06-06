@@ -31,9 +31,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -61,8 +58,7 @@ fun SettingsScreen(
     SettingsContent(
         uiState             = uiState,
         onBack              = onBack,
-        onPlayerCountChange = viewModel::setPlayerCount,
-        onLanguageChange    = viewModel::setLanguage
+        onPlayerCountChange = viewModel::setPlayerCount
     )
 }
 
@@ -71,8 +67,7 @@ fun SettingsScreen(
 private fun SettingsContent(
     uiState: SettingsUiState,
     onBack: () -> Unit,
-    onPlayerCountChange: (Int) -> Unit,
-    onLanguageChange: (AppLanguage) -> Unit
+    onPlayerCountChange: (Int) -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -131,12 +126,6 @@ private fun SettingsContent(
                         onDecrement = { onPlayerCountChange(uiState.playerCount - 1) }
                     )
                 }
-                SettingsSection(title = stringResource(R.string.language_section_title)) {
-                    LanguageSelector(
-                        selected = uiState.language,
-                        onSelect = onLanguageChange
-                    )
-                }
                 Spacer(modifier = Modifier.height(24.dp))
             }
         }
@@ -175,8 +164,8 @@ private fun PlayerCountControl(
     modifier: Modifier = Modifier
 ) {
     Row(
-        modifier            = modifier,
-        verticalAlignment   = Alignment.CenterVertically,
+        modifier              = modifier,
+        verticalAlignment     = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(32.dp)
     ) {
         FilledTonalIconButton(
@@ -191,7 +180,7 @@ private fun PlayerCountControl(
         }
 
         AnimatedContent(
-            targetState  = count,
+            targetState = count,
             transitionSpec = {
                 if (targetState > initialState)
                     (slideInVertically { it } + fadeIn()) togetherWith (slideOutVertically { -it } + fadeOut())
@@ -221,40 +210,14 @@ private fun PlayerCountControl(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun LanguageSelector(
-    selected: AppLanguage,
-    onSelect: (AppLanguage) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val options = listOf(
-        AppLanguage.SYSTEM  to stringResource(R.string.language_system_label),
-        AppLanguage.RUSSIAN to stringResource(R.string.language_russian_label),
-        AppLanguage.ENGLISH to stringResource(R.string.language_english_label)
-    )
-
-    SingleChoiceSegmentedButtonRow(modifier = modifier.fillMaxWidth()) {
-        options.forEachIndexed { index, (language, label) ->
-            SegmentedButton(
-                shape    = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
-                selected = selected == language,
-                onClick  = { onSelect(language) },
-                label    = { Text(text = label, style = MaterialTheme.typography.labelLarge) }
-            )
-        }
-    }
-}
-
 @Preview(showBackground = true)
 @Composable
 private fun SettingsPreview() {
     SpyGameTheme {
         SettingsContent(
-            uiState             = SettingsUiState(playerCount = 6, language = AppLanguage.SYSTEM, isLoading = false),
+            uiState             = SettingsUiState(playerCount = 6, isLoading = false),
             onBack              = {},
-            onPlayerCountChange = {},
-            onLanguageChange    = {}
+            onPlayerCountChange = {}
         )
     }
 }

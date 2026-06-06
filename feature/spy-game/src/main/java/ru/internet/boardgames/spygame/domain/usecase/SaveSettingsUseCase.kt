@@ -8,9 +8,8 @@ import javax.inject.Inject
  *
  * Содержит бизнес-правила валидации перед записью:
  * - playerCount ограничен диапазоном [MIN_PLAYERS]..[MAX_PLAYERS]
- * - language должен быть одним из допустимых значений
  *
- * SettingsViewModel вызывает нужный метод при изменении каждой настройки.
+ * Язык убран из настроек: он определяется системной локалью устройства.
  */
 class SaveSettingsUseCase @Inject constructor(
     private val settingsRepository: SettingsRepository
@@ -18,7 +17,6 @@ class SaveSettingsUseCase @Inject constructor(
     companion object {
         const val MIN_PLAYERS = 2
         const val MAX_PLAYERS = 10
-        val ALLOWED_LANGUAGES = setOf("ru", "en", "system")
     }
 
     /**
@@ -31,16 +29,5 @@ class SaveSettingsUseCase @Inject constructor(
     suspend fun savePlayerCount(count: Int) {
         val clamped = count.coerceIn(MIN_PLAYERS, MAX_PLAYERS)
         settingsRepository.setPlayerCount(clamped)
-    }
-
-    /**
-     * Сохраняет языковой код.
-     * При неизвестном значении сохраняет "system" как безопасный fallback.
-     *
-     * @param language Код языка: "ru", "en" или "system".
-     */
-    suspend fun saveLanguage(language: String) {
-        val safe = if (language in ALLOWED_LANGUAGES) language else "system"
-        settingsRepository.setLanguage(safe)
     }
 }

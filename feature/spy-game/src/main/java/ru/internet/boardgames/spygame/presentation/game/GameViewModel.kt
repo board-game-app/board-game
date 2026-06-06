@@ -15,8 +15,7 @@ import ru.internet.boardgames.spygame.domain.model.AppSettings
 import ru.internet.boardgames.spygame.domain.usecase.GenerateGameSessionUseCase
 import ru.internet.boardgames.spygame.domain.usecase.GetRandomCategoryUseCase
 import ru.internet.boardgames.spygame.domain.usecase.GetSettingsUseCase
-import ru.internet.boardgames.spygame.presentation.settings.AppLanguage
-import ru.internet.boardgames.spygame.presentation.settings.resolveLanguageCode
+import java.util.Locale
 import javax.inject.Inject
 
 /**
@@ -27,6 +26,9 @@ import javax.inject.Inject
  * 2. Управлять жизненным циклом карточек: STACKED → REVEALED → DISMISSED.
  * 3. Запускать и отменять таймер, обновлять [GameUiState.timerProgress].
  * 4. Обрабатывать запрос «Обновить» (новая категория).
+ *
+ * Язык определяется из системной локали ([Locale.getDefault]) при каждой
+ * загрузке сессии. Fallback на "en" выполняется внутри [GetRandomCategoryUseCase].
  */
 @HiltViewModel
 class GameViewModel @Inject constructor(
@@ -66,7 +68,6 @@ class GameViewModel @Inject constructor(
 
                 val shouldReload = when {
                     prev == null -> true                              // Первый запуск
-                    prev.language != settings.language -> true        // Сменился язык
                     prev.playerCount != settings.playerCount -> true  // Сменилось число игроков
                     else -> false
                 }
@@ -85,7 +86,11 @@ class GameViewModel @Inject constructor(
     /**
      * Загружает новую игровую сессию.
      *
-     * @param settings          Актуальные настройки (язык + число игроков).
+     * Язык определяется из системной локали в момент вызова.
+     * [GetRandomCategoryUseCase] выполнит fallback на "en", если локаль
+     * не входит в список поддерживаемых языков.
+     *
+     * @param settings          Актуальные настройки (число игроков).
      * @param excludeCategoryId ID категории, которую нужно исключить (для Refresh).
      */
     private fun loadSession(settings: AppSettings, excludeCategoryId: String?) {
@@ -96,9 +101,7 @@ class GameViewModel @Inject constructor(
             _uiState.update { it.copy(isLoading = true, error = null) }
 
             runCatching {
-                val languageCode = AppLanguage
-                    .fromCode(settings.language)
-                    .resolveLanguageCode()
+                val languageCode = Locale.getDefault().language.take(2)
 
                 val category = getRandomCategoryUseCase(
                     language = languageCode,

@@ -51,9 +51,8 @@ kotlin {
 }
 dependencies {
     // ── Feature-модули ────────────────────────────────────────────────────────
-    // Добавить игру = одна строка здесь + include() в settings.gradle.kts
     implementation(project(":feature:spy-game"))
-    // implementation(project(":feature:sound-quiz"))  ← будущая игра
+    implementation(project(":feature:counter"))
 
     // ── App-level зависимости ─────────────────────────────────────────────────
     implementation(libs.androidx.core.ktx)

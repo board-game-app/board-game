@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- ── Приложение ─────────────────────────────────────────────────────── -->
-    <string name="game_name">Шпион</string>
+    <!-- ── SpyGame — основные строки ─────────────────────────────────────── -->
+    <string name="app_name">Шпион</string>
     <string name="spy_word">Шпион</string>
 
-    <!-- ── Игровой экран ──────────────────────────────────────────────────── -->
     <string name="settings_action_desc">Настройки</string>
     <string name="loading_game">Загружаем игру…</string>
     <string name="error_title">Что-то пошло не так</string>
@@ -12,14 +11,11 @@
     <string name="game_complete_title">Все карточки просмотрены!</string>
     <string name="game_complete_subtitle">Обсуждайте, кто шпион</string>
 
-    <!-- ── Кнопка «Новая игра» ───────────────────────────────────────────── -->
     <string name="refresh_game_label">Новая игра</string>
     <string name="refresh_game_desc">Начать новую игру с другой локацией</string>
 
-    <!-- ── Карточка ──────────────────────────────────────────────────────── -->
     <string name="card_number_format">№ %d</string>
 
-    <!-- ── Экран настроек ────────────────────────────────────────────────── -->
     <string name="settings_title">Настройки</string>
     <string name="settings_back_desc">Назад</string>
     <string name="players_section_title">Игроки</string>
@@ -30,4 +26,6 @@
     <string name="language_system_label">Авто</string>
     <string name="language_russian_label">Рус</string>
     <string name="language_english_label">Eng</string>
+
+    <string name="counter_action_desc">Счётчик</string>
 </resources>

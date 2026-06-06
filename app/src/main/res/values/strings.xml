@@ -1,15 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- ── Приложение ─────────────────────────────────────────────────────── -->
     <string name="app_name">Board Games</string>
 
-    <!-- ── Карточки игр на HomeScreen ────────────────────────────────────── -->
-    <!-- Строки конкретных игр — в их feature-модулях (feature/spy-game/res/) -->
     <string name="spy_game_title">Spy</string>
     <string name="spy_game_description">Find the spy among the players</string>
 
-    <!-- Будущая игра:
-    <string name="sound_quiz_title">Sound Quiz</string>
-    <string name="sound_quiz_description">Guess the song by the intro</string>
-    -->
+    <string name="counter_title">Counter</string>
+    <string name="counter_description">Keep score across game sessions</string>
 </resources>

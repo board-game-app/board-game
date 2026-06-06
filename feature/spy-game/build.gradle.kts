@@ -16,19 +16,12 @@ android {
 
     defaultConfig {
         minSdk = 26
-
-        // Нет applicationId — это библиотечный модуль.
-        // Google Play видит только applicationId из :app.
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
-        // consumer-rules.pro применяются к :app при сборке релиза
         consumerProguardFiles("consumer-rules.pro")
     }
 
     buildTypes {
         release {
-            // Минификация управляется из :app; здесь — только consumer-rules
             isMinifyEnabled = false
         }
     }
