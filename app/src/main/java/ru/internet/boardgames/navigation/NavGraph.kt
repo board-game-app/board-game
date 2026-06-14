@@ -1,5 +1,6 @@
 package ru.internet.boardgames.navigation
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -16,6 +17,8 @@ import androidx.navigation.compose.rememberNavController
 import ru.internet.boardgames.home.HomeScreen
 import ru.internet.boardgames.spygame.presentation.navigation.SPY_GAME_ROUTE
 import ru.internet.boardgames.spygame.presentation.navigation.spyGameGraph
+import ru.internet.boardgames.soundquiz.presentation.navigation.SOUND_QUIZ_ROUTE
+import ru.internet.boardgames.soundquiz.presentation.navigation.soundQuizGraph
 import ru.internet.boardgames.ui.CounterSidePanel
 
 // Импорты из :feature:counter
@@ -30,15 +33,12 @@ private const val HOME_ROUTE = "home"
  *
  * Счётчик открывается тремя способами:
  * 1. Карточка Counter на HomeScreen    → navigate(COUNTER_LIST_ROUTE) — полный экран.
- * 2. Кнопка 🔢 в TopAppBar SpyGame    → CounterSidePanel (панель справа).
+ * 2. Кнопка 🔢 в TopAppBar игры       → CounterSidePanel (панель справа).
  * 3. Edge-свайп влево с правого края  → CounterSidePanel (панель справа).
  *
- * Пункты 2 и 3 недоступны:
- *   - На главном экране ([HOME_ROUTE]) — панель открывается только внутри игр.
- *   - На экранах Counter — исключает боковую панель поверх полноэкранного счётчика.
- *
- * Back-жест при открытой панели обрабатывается внутри [CounterSidePanel]:
- * первое нажатие — закрывает панель, второе — NavHost возвращает на HOME_ROUTE.
+ * CounterSidePanel отключается:
+ *   - На HomeScreen (пользователю не нужен счётчик на главном экране).
+ *   - На экранах Counter (панель поверх полного экрана счётчика не нужна).
  */
 @Composable
 fun NavGraph(
@@ -47,13 +47,9 @@ fun NavGraph(
 ) {
     var showCounterPanel by rememberSaveable { mutableStateOf(false) }
 
-    // Текущий маршрут — для управления доступностью edge-свайпа
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route ?: ""
 
-    // Edge-свайп и кнопка 🔢 доступны только внутри игровых экранов:
-    //   • HOME_ROUTE  — панель не нужна на главном экране.
-    //   • counter/*   — панель не открывается поверх полноэкранного счётчика.
     val edgeSwipeEnabled = !currentRoute.startsWith("counter") && currentRoute != HOME_ROUTE
 
     // BackHandler перенесён внутрь CounterSidePanel, где гарантирован
@@ -69,8 +65,9 @@ fun NavGraph(
             // ── Главный экран ─────────────────────────────────────────────────
             composable(HOME_ROUTE) {
                 HomeScreen(
-                    onNavigateToSpyGame = { navController.navigate(SPY_GAME_ROUTE) },
-                    onNavigateToCounter = { navController.navigate(COUNTER_LIST_ROUTE) }
+                    onNavigateToSpyGame  = { navController.navigate(SPY_GAME_ROUTE) },
+                    onNavigateToSoundQuiz = { navController.navigate(SOUND_QUIZ_ROUTE) },
+                    onNavigateToCounter  = { navController.navigate(COUNTER_LIST_ROUTE) }
                 )
             }
 
@@ -79,12 +76,15 @@ fun NavGraph(
                 navController = navController
             )
 
+            // ── SoundQuiz ─────────────────────────────────────────────────────
+            soundQuizGraph(
+                navController = navController
+            )
+
             // ── Counter (полный экран с HomeScreen) ───────────────────────────
             counterGraph(navController = navController)
         }
 
-        // CounterSidePanel рендерится ПОСЛЕ NavHost → всегда поверх него.
-        // Управление Back-жестом и закрытием инкапсулировано внутри компонента.
         CounterSidePanel(
             visible          = showCounterPanel,
             onDismiss        = { showCounterPanel = false },

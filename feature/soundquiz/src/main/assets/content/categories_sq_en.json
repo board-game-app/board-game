@@ -1,0 +1,204 @@
+{
+  "categories": [
+    {
+      "name": "Animals",
+      "colorArgb": -1754827,
+      "displayOrder": 1,
+      "words": [
+        "Cat", "Dog", "Cow", "Frog", "Bee",
+        "Snake", "Wolf", "Elephant", "Monkey", "Lion",
+        "Bear", "Mouse", "Horse", "Tiger", "Boar"
+      ]
+    },
+    {
+      "name": "Birds",
+      "colorArgb": -291840,
+      "displayOrder": 2,
+      "words": [
+        "Sparrow", "Crow", "Cuckoo", "Owl", "Rooster",
+        "Parrot", "Nightingale", "Pigeon", "Swan", "Woodpecker",
+        "Seagull", "Bullfinch", "Goose", "Magpie", "Lark"
+      ]
+    },
+    {
+      "name": "Insects",
+      "colorArgb": -141259,
+      "displayOrder": 3,
+      "words": [
+        "Mosquito", "Fly", "Grasshopper", "Cricket", "Bee",
+        "Bumblebee", "Wasp", "Cicada", "Beetle", "Cockroach",
+        "Dragonfly", "Moth", "Horsefly", "Midge", "Chafer"
+      ]
+    },
+    {
+      "name": "Musical Instruments",
+      "colorArgb": -12345273,
+      "displayOrder": 4,
+      "words": [
+        "Drum", "Guitar", "Piano", "Violin", "Flute",
+        "Trumpet", "Harmonica", "Bell", "Tambourine", "Saxophone",
+        "Trombone", "Double Bass", "Xylophone", "Accordion", "Cello"
+      ]
+    },
+    {
+      "name": "Transport",
+      "colorArgb": -16540699,
+      "displayOrder": 5,
+      "words": [
+        "Train", "Airplane", "Motorcycle", "Helicopter", "Tractor",
+        "Fire Truck", "Ambulance", "Tram", "Bus",
+        "Motorboat", "Truck", "Moped", "Commuter Train", "Steamship", "Car"
+      ]
+    },
+    {
+      "name": "Weather & Nature",
+      "colorArgb": -14776091,
+      "displayOrder": 6,
+      "words": [
+        "Thunder", "Rain", "Wind", "Blizzard", "Waves",
+        "Waterfall", "Storm", "Hurricane", "Stream", "Downpour",
+        "Surf", "Snowstorm", "Tempest", "Snowfall", "Falling Leaves"
+      ]
+    },
+    {
+      "name": "In the Kitchen",
+      "colorArgb": -7461718,
+      "displayOrder": 7,
+      "words": [
+        "Kettle", "Mixer", "Coffee Grinder", "Meat Grinder", "Blender",
+        "Refrigerator", "Microwave", "Exhaust Hood", "Frying Pan",
+        "Toaster", "Dishwasher", "Juicer", "Can Opener", "Pot", "Slow Cooker"
+      ]
+    },
+    {
+      "name": "Sports",
+      "colorArgb": -2614432,
+      "displayOrder": 8,
+      "words": [
+        "Bowling", "Tennis", "Boxing", "Swimming", "Hockey",
+        "Basketball", "Shooting", "Gymnastics", "Weightlifting",
+        "Wrestling", "Golf", "Skateboarding", "Diving", "Cycling", "Running"
+      ]
+    },
+    {
+      "name": "Actions & Sounds",
+      "colorArgb": -1754827,
+      "displayOrder": 9,
+      "words": [
+        "Applause", "Snoring", "Laughter", "Coughing", "Sneezing",
+        "Whistling", "Singing", "Clapping", "Chewing", "Yawning",
+        "Crying", "Knocking", "Gurgling", "Stomping", "Cracking"
+      ]
+    },
+    {
+      "name": "Food & Drinks",
+      "colorArgb": -291840,
+      "displayOrder": 10,
+      "words": [
+        "Popcorn", "Chips", "Soda", "Chewing Gum", "Crackers",
+        "Soup", "Watermelon", "Cookies", "Cola", "Ice Cream",
+        "Carrot", "Celery", "Champagne", "Coffee", "Corn"
+      ]
+    },
+    {
+      "name": "Home & Daily Life",
+      "colorArgb": -141259,
+      "displayOrder": 11,
+      "words": [
+        "Alarm Clock", "Doorbell", "Vacuum Cleaner", "Hair Dryer", "Drill",
+        "Printer", "Air Conditioner", "Television", "Elevator", "Clock",
+        "Washing Machine", "Sewing Machine", "Electric Shaver", "Fan", "Phone"
+      ]
+    },
+    {
+      "name": "City Sounds",
+      "colorArgb": -12345273,
+      "displayOrder": 12,
+      "words": [
+        "Traffic Jam", "Crowd", "Market", "Subway", "Horn Honking",
+        "Siren", "Construction", "Fountain", "Stadium", "Fair",
+        "Playground", "Street Musician", "Crossroads", "Park", "Cobblestones"
+      ]
+    },
+    {
+      "name": "Music Genres",
+      "colorArgb": -16540699,
+      "displayOrder": 13,
+      "words": [
+        "Waltz", "Rock", "Jazz", "Rap", "Pop",
+        "March", "Disco", "Reggae", "Flamenco", "Rumba",
+        "Samba", "Choir", "Opera", "Blues", "Bossa Nova"
+      ]
+    },
+    {
+      "name": "Construction",
+      "colorArgb": -14776091,
+      "displayOrder": 14,
+      "words": [
+        "Drill", "Jackhammer", "Crane", "Cement Mixer", "Excavator",
+        "Saw", "Hammer", "Welding", "Angle Grinder", "Screwdriver",
+        "Compressor", "Demolition Hammer", "Bulldozer", "Nail Gun", "Hand Plane"
+      ]
+    },
+    {
+      "name": "Sea & Water",
+      "colorArgb": -7461718,
+      "displayOrder": 15,
+      "words": [
+        "Waves", "Surf", "Dolphin", "Seagull", "Whale",
+        "Storm", "Fishing", "Anchor", "Steamship", "Whirlpool",
+        "Octopus", "Crab", "Walrus", "Shark", "Boat"
+      ]
+    },
+    {
+      "name": "Children's Games",
+      "colorArgb": -2614432,
+      "displayOrder": 16,
+      "words": [
+        "Swings", "Slide", "Merry-Go-Round", "Ball", "Jump Rope",
+        "Bicycle", "Scooter", "Rattle", "Whistle Pipe", "Toy Drum",
+        "Whistle", "Soap Bubbles", "Balloon", "Noisemaker", "Blocks"
+      ]
+    },
+    {
+      "name": "Party & Celebration",
+      "colorArgb": -1754827,
+      "displayOrder": 17,
+      "words": [
+        "Party Popper", "Fireworks", "Applause", "Music", "Dancing",
+        "Laughter", "Party Horn", "Whistle", "Clock Striking", "Champagne",
+        "Drum", "Trumpet", "Bell", "Anthem", "Toasts"
+      ]
+    },
+    {
+      "name": "Forest Sounds",
+      "colorArgb": -291840,
+      "displayOrder": 18,
+      "words": [
+        "Stream", "Woodpecker", "Owl", "Cuckoo", "Squirrel",
+        "Wolf", "Bear", "Frogs", "Crickets", "Wind",
+        "Branches", "Storm", "Boar", "Rain", "Leaves"
+      ]
+    },
+    {
+      "name": "Gym",
+      "colorArgb": -141259,
+      "displayOrder": 19,
+      "words": [
+        "Kettlebell", "Barbell", "Punching Bag", "Jump Rope", "Treadmill",
+        "Exercise Bike", "Dumbbells", "Pull-up Bar", "Parallel Bars", "Ball",
+        "Boxing Ring", "Aerobics", "Wrestling", "Trampoline", "Climbing Rope"
+      ]
+    },
+    {
+      "name": "Office",
+      "colorArgb": -12345273,
+      "displayOrder": 20,
+      "words": [
+        "Printer", "Keyboard", "Stapler", "Phone", "Fax Machine",
+        "Coffee Machine", "Air Conditioner", "Scanner", "Photocopier", "Blinds",
+        "Elevator", "Shredder", "Door", "Doorbell", "Fan"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ══ Общие ══════════════════════════════════════════════════════════════ -->
+    <string name="sound_quiz_back">Назад</string>
+    <string name="sound_quiz_save">Сохранить</string>
+    <string name="sound_quiz_cancel">Отмена</string>
+    <string name="sound_quiz_delete">Удалить</string>
+    <string name="sound_quiz_built_in">Встроенная категория</string>
+    <string name="sound_quiz_unknown_error">Неизвестная ошибка</string>
+
+    <!-- Количество слов — корректные русские окончания -->
+    <plurals name="sound_quiz_word_count">
+        <item quantity="one">%d слово</item>
+        <item quantity="few">%d слова</item>
+        <item quantity="many">%d слов</item>
+        <item quantity="other">%d слов</item>
+    </plurals>
+
+    <!-- ══ Настройки ══════════════════════════════════════════════════════════ -->
+    <string name="sound_quiz_settings_title">Настройки</string>
+    <string name="sound_quiz_settings_game_params">Параметры игры</string>
+    <string name="sound_quiz_settings_num_stacks">Количество стопок</string>
+    <string name="sound_quiz_settings_words_per_stack">Слов в стопке</string>
+    <string name="sound_quiz_settings_timer">Таймер</string>
+    <!-- %d — число секунд -->
+    <string name="sound_quiz_settings_timer_value">%d с</string>
+    <string name="sound_quiz_settings_timer_min">5 с</string>
+    <string name="sound_quiz_settings_timer_max">300 с</string>
+    <string name="sound_quiz_settings_decrease">Уменьшить</string>
+    <string name="sound_quiz_settings_increase">Увеличить</string>
+    <string name="sound_quiz_settings_language">Язык</string>
+    <string name="sound_quiz_settings_lang_system">Авто</string>
+    <string name="sound_quiz_settings_lang_ru">Рус</string>
+    <string name="sound_quiz_settings_lang_en">Eng</string>
+    <string name="sound_quiz_settings_categories">Категории</string>
+    <!-- %1$d — выбрано, %2$d — максимум -->
+    <string name="sound_quiz_settings_categories_selected">Выбрано %1$d из %2$d</string>
+    <string name="sound_quiz_settings_search_hint">Поиск по названию</string>
+    <string name="sound_quiz_settings_no_categories">Категории не найдены</string>
+
+    <!-- ══ Управление категориями ══════════════════════════════════════════════ -->
+    <string name="sound_quiz_categories_title">Категории</string>
+    <string name="sound_quiz_create_category">Создать категорию</string>
+    <string name="sound_quiz_no_categories">Нет категорий</string>
+    <!-- %1$s — «N слово/слова/слов», %2$s — языковой код (RU / EN) -->
+    <string name="sound_quiz_category_subtitle">%1$s · %2$s</string>
+    <string name="sound_quiz_edit_category">Редактировать</string>
+    <string name="sound_quiz_delete_category">Удалить</string>
+    <string name="sound_quiz_delete_category_title">Удалить категорию?</string>
+    <string name="sound_quiz_delete_category_message">Все слова этой категории также будут удалены.</string>
+    <string name="sound_quiz_dialog_new_category">Новая категория</string>
+    <string name="sound_quiz_dialog_edit_category">Редактировать категорию</string>
+    <string name="sound_quiz_dialog_name_hint">Название</string>
+    <string name="sound_quiz_dialog_color">Цвет</string>
+    <string name="sound_quiz_dialog_language">Язык</string>
+
+    <!-- ══ Управление словами ══════════════════════════════════════════════════ -->
+    <string name="sound_quiz_words_title">Слова</string>
+    <string name="sound_quiz_add_word">Добавить слово</string>
+    <string name="sound_quiz_no_words">Нет слов</string>
+    <string name="sound_quiz_add_first_word">Нажмите «+» чтобы добавить первое слово</string>
+    <string name="sound_quiz_edit_word">Редактировать слово</string>
+    <string name="sound_quiz_delete_word">Удалить слово</string>
+    <string name="sound_quiz_dialog_new_word">Новое слово</string>
+    <string name="sound_quiz_dialog_edit_word">Редактировать слово</string>
+    <string name="sound_quiz_dialog_word_hint">Слово</string>
+
+    <!-- ══ Игровой экран ═══════════════════════════════════════════════════════ -->
+    <string name="sound_quiz_game_title">Звуковая викторина</string>
+    <string name="sound_quiz_settings_action">Настройки</string>
+    <string name="sound_quiz_categories_action">Категории</string>
+    <string name="sound_quiz_select_stack">Выберите стопку</string>
+    <string name="sound_quiz_pass_phone">Передайте телефон следующему игроку</string>
+    <string name="sound_quiz_ready">Готов</string>
+    <string name="sound_quiz_game_over_emoji">🎉</string>
+    <string name="sound_quiz_game_over">Игра окончена!</string>
+    <!-- %d — количество объяснённых слов -->
+    <string name="sound_quiz_words_explained">Объяснено слов: %d</string>
+    <string name="sound_quiz_new_game">Новая игра</string>
+    <string name="sound_quiz_change_settings">Изменить настройки</string>
+    <!-- %s — текст ошибки -->
+    <string name="sound_quiz_error">Ошибка: %s</string>
+    <string name="sound_quiz_retry">Повторить</string>
+
+    <!-- ══ Активная карточка ════════════════════════════════════════════════════ -->
+    <string name="sound_quiz_tap_to_flip">Нажмите, чтобы перевернуть</string>
+    <string name="sound_quiz_explained">✓ Объяснено</string>
+
+</resources>

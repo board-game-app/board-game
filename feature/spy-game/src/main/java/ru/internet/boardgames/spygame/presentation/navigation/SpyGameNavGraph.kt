@@ -17,9 +17,6 @@ private const val SETTINGS_ROUTE = "spy_game/settings"
  * Публичный API фичи SpyGame для корневого NavGraph в :app.
  *
  * @param navController  Корневой контроллер навигации.
- * @param onOpenCounter  Вызывается при нажатии иконки 🔢 в TopAppBar.
- *                       null (по умолчанию) — иконка не отображается.
- *                       :app передаёт { showCounterSheet = true }.
  *
  * :feature:spy-game не знает о :feature:counter и не импортирует из него ничего.
  * Вся связь — через этот nullable-callback.

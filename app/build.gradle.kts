@@ -20,10 +20,11 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary = true }
     }
+
     buildTypes {
         debug   { isMinifyEnabled = false }
         release {
-            isMinifyEnabled  = true
+            isMinifyEnabled   = true
             isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -37,22 +38,23 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
+    kotlinOptions {
+        jvmTarget = "17"
+        freeCompilerArgs += listOf("-opt-in=kotlin.RequiresOptIn")
+    }
+
     buildFeatures { compose = true }
 
     packaging {
         resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" }
     }
 }
-kotlin {
-    jvmToolchain(17)
-    compilerOptions {
-        optIn.add("kotlin.RequiresOptIn")
-    }
-}
+
 dependencies {
     // ── Feature-модули ────────────────────────────────────────────────────────
     implementation(project(":feature:spy-game"))
     implementation(project(":feature:counter"))
+    implementation(project(":feature:soundquiz"))
 
     // ── App-level зависимости ─────────────────────────────────────────────────
     implementation(libs.androidx.core.ktx)
@@ -69,14 +71,19 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.lifecycle.runtime.ktx)
 
-    // Hilt — только компилятор здесь; библиотеку транзитивно приносит feature
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
-    // Splash Screen
     implementation(libs.androidx.core.splashscreen)
-
-    // Нужен для Theme.Material3.DayNight.NoActionBar в themes.xml
     implementation(libs.material)
+
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+
+    debugImplementation(libs.androidx.compose.ui.tooling)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
 }

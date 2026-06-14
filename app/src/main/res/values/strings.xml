@@ -5,6 +5,9 @@
     <string name="spy_game_title">Spy</string>
     <string name="spy_game_description">Find the spy among the players</string>
 
+    <string name="sound_quiz_title">Sound Quiz</string>
+    <string name="sound_quiz_description">Explain words using only sounds</string>
+
     <string name="counter_title">Counter</string>
     <string name="counter_description">Keep score across game sessions</string>
 </resources>

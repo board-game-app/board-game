@@ -76,6 +76,7 @@ androidxTestRules  = "1.6.1"
 
 # Hilt Testing — для @HiltAndroidTest (интеграционные тесты с реальным DI-графом)
 hiltTesting = "2.59.2"
+androidBuiltInKotlin = "9.2.1"
 
 
 [libraries]
@@ -184,3 +185,4 @@ kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", versi
 jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm",            version.ref = "jetbrainsKotlinJvm" }
 kotlin-ksp           = { id = "com.google.devtools.ksp",              version.ref = "kotlinKsp" }
 hilt-android         = { id = "com.google.dagger.hilt.android",       version.ref = "hiltAndroid" }
+android-built-in1-kotlin = { id = "com.android.built-in-kotlin", version.ref = "androidBuiltInKotlin" }

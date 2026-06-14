@@ -31,33 +31,38 @@ import ru.internet.boardgames.R
 import ru.internet.boardgames.ui.BoardGamesTheme
 
 /**
- * Главный экран: сетка доступных мини-приложений.
+ * Главный экран — сетка мини-приложений.
  *
- * Счётчик — полноправная карточка в сетке наравне с играми.
- * Из HomeScreen он открывается как полный экран (navigate).
- * Из игр — как BottomSheet (см. NavGraph + SpyGameNavGraph).
+ * Добавление новой игры: одна строка в [items] + новый параметр-callback.
+ * Логика навигации в NavGraph.kt, HomeScreen — только UI.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     onNavigateToSpyGame: () -> Unit,
-    onNavigateToCounter: () -> Unit,       
+    onNavigateToSoundQuiz: () -> Unit,     // ← ДОБАВЛЕНО
+    onNavigateToCounter: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val items = listOf(
-        GameEntry(
-            emoji    = "🔢",                
-            titleRes = R.string.counter_title,
-            descRes  = R.string.counter_description,
-            onClick  = onNavigateToCounter
-        ),
-        GameEntry(
+        AppEntry(
             emoji    = "🕵️",
             titleRes = R.string.spy_game_title,
             descRes  = R.string.spy_game_description,
             onClick  = onNavigateToSpyGame
         ),
-        // Будущие игры добавляются сюда без изменения остального кода
+        AppEntry(                           // ← ДОБАВЛЕНО
+            emoji    = "🎵",
+            titleRes = R.string.sound_quiz_title,
+            descRes  = R.string.sound_quiz_description,
+            onClick  = onNavigateToSoundQuiz
+        ),
+        AppEntry(
+            emoji    = "🔢",
+            titleRes = R.string.counter_title,
+            descRes  = R.string.counter_description,
+            onClick  = onNavigateToCounter
+        )
     )
 
     Scaffold(
@@ -87,7 +92,7 @@ fun HomeScreen(
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             items(count = items.size, key = { items[it].titleRes }) { i ->
-                GameCard(entry = items[i])
+                AppCard(entry = items[i])
             }
         }
     }
@@ -95,7 +100,7 @@ fun HomeScreen(
 
 // ─── Модель и компонент карточки ──────────────────────────────────────────────
 
-private data class GameEntry(
+private data class AppEntry(
     val emoji    : String,
     val titleRes : Int,
     val descRes  : Int,
@@ -104,7 +109,7 @@ private data class GameEntry(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun GameCard(entry: GameEntry, modifier: Modifier = Modifier) {
+private fun AppCard(entry: AppEntry, modifier: Modifier = Modifier) {
     ElevatedCard(
         onClick   = entry.onClick,
         modifier  = modifier.fillMaxWidth(),
@@ -136,10 +141,14 @@ private fun GameCard(entry: GameEntry, modifier: Modifier = Modifier) {
     }
 }
 
-@Preview(showBackground = true, locale = "ru")
+@Preview(showBackground = true)
 @Composable
 private fun HomeScreenPreview() {
-    BoardGamesTheme(darkTheme = true) {
-        HomeScreen(onNavigateToSpyGame = {}, onNavigateToCounter = {})
+    BoardGamesTheme {
+        HomeScreen(
+            onNavigateToSpyGame  = {},
+            onNavigateToSoundQuiz = {},
+            onNavigateToCounter  = {}
+        )
     }
 }

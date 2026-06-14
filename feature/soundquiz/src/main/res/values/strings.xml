@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<!-- ══ General ══════════════════════════════════════════════════════════════ -->
+<string name="sound_quiz_back">Back</string>
+<string name="sound_quiz_save">Save</string>
+<string name="sound_quiz_cancel">Cancel</string>
+<string name="sound_quiz_delete">Delete</string>
+<string name="sound_quiz_built_in">Built-in category</string>
+<string name="sound_quiz_unknown_error">Unknown error</string>
+<!-- Word count — correct English endings -->
+<plurals name="sound_quiz_word_count">
+    <item quantity="one">%d word</item>
+    <item quantity="other">%d words</item>
+</plurals>
+
+<!-- ══ Settings ══════════════════════════════════════════════════════════ -->
+<string name="sound_quiz_settings_title">Settings</string>
+<string name="sound_quiz_settings_game_params">Game parameters</string>
+<string name="sound_quiz_settings_num_stacks">Number of stacks</string>
+<string name="sound_quiz_settings_words_per_stack">Words per stack</string>
+<string name="sound_quiz_settings_timer">Timer</string>
+<!-- %d — number of seconds -->
+<string name="sound_quiz_settings_timer_value">%d s</string>
+<string name="sound_quiz_settings_timer_min">5 s</string>
+<string name="sound_quiz_settings_timer_max">300 s</string>
+<string name="sound_quiz_settings_decrease">Decrease</string>
+<string name="sound_quiz_settings_increase">Increase</string>
+<string name="sound_quiz_settings_language">Language</string>
+<string name="sound_quiz_settings_lang_system">Auto</string>
+<string name="sound_quiz_settings_lang_ru">Rus</string>
+<string name="sound_quiz_settings_lang_en">Eng</string>
+<string name="sound_quiz_settings_categories">Categories</string>
+<!-- %1$d — selected, %2$d — maximum -->
+<string name="sound_quiz_settings_categories_selected">Selected %1$d of %2$d</string>
+<string name="sound_quiz_settings_search_hint">Search by name</string>
+<string name="sound_quiz_settings_no_categories">No categories found</string>
+
+<!-- ══ Category Management ══════════════════════════════════════════════ -->
+<string name="sound_quiz_categories_title">Categories</string>
+<string name="sound_quiz_create_category">Create category</string>
+<string name="sound_quiz_no_categories">No categories</string>
+<!-- %1$s — "N word/words", %2$s — language code (RU / EN) -->
+<string name="sound_quiz_category_subtitle">%1$s · %2$s</string>
+<string name="sound_quiz_edit_category">Edit</string>
+<string name="sound_quiz_delete_category">Delete</string>
+<string name="sound_quiz_delete_category_title">Delete category?</string>
+<string name="sound_quiz_delete_category_message">All words in this category will also be deleted.</string>
+<string name="sound_quiz_dialog_new_category">New category</string>
+<string name="sound_quiz_dialog_edit_category">Edit category</string>
+<string name="sound_quiz_dialog_name_hint">Name</string>
+<string name="sound_quiz_dialog_color">Color</string>
+<string name="sound_quiz_dialog_language">Language</string>
+
+<!-- ══ Word Management ══════════════════════════════════════════════════ -->
+<string name="sound_quiz_words_title">Words</string>
+<string name="sound_quiz_add_word">Add word</string>
+<string name="sound_quiz_no_words">No words</string>
+<string name="sound_quiz_add_first_word">Press "+" to add the first word</string>
+<string name="sound_quiz_edit_word">Edit word</string>
+<string name="sound_quiz_delete_word">Delete word</string>
+<string name="sound_quiz_dialog_new_word">New word</string>
+<string name="sound_quiz_dialog_edit_word">Edit word</string>
+<string name="sound_quiz_dialog_word_hint">Word</string>
+
+<!-- ══ Game Screen ═══════════════════════════════════════════════════════ -->
+<string name="sound_quiz_game_title">Sound Quiz</string>
+<string name="sound_quiz_settings_action">Settings</string>
+<string name="sound_quiz_categories_action">Categories</string>
+<string name="sound_quiz_select_stack">Select a stack</string>
+<string name="sound_quiz_pass_phone">Pass the phone to the next player</string>
+<string name="sound_quiz_ready">Ready</string>
+<string name="sound_quiz_game_over_emoji">🎉</string>
+<string name="sound_quiz_game_over">Game over!</string>
+<!-- %d — number of explained words -->
+<string name="sound_quiz_words_explained">Words explained: %d</string>
+<string name="sound_quiz_new_game">New game</string>
+<string name="sound_quiz_change_settings">Change settings</string>
+<!-- %s — error text -->
+<string name="sound_quiz_error">Error: %s</string>
+<string name="sound_quiz_retry">Retry</string>
+
+<!-- ══ Active Card ════════════════════════════════════════════════════════ -->
+<string name="sound_quiz_tap_to_flip">Tap to flip</string>
+<string name="sound_quiz_explained">✓ Explained</string>
+</resources>
