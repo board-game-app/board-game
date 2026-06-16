@@ -1,7 +1,10 @@
 package ru.internet.boardgames.counter.presentation
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,27 +12,39 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -41,61 +56,69 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import ru.internet.boardgames.counter.presentation.utils.findActivity
 
-/**
- * Экран создания и редактирования счётчика (§7 ТЗ).
- *
- * Исправление 1: получает Activity через [findActivity] вместо прямого каста.
- * Исправление 2: поле «Действия» (§7.5) использует числовую клавиатуру
- *   [KeyboardType.Number] с [ImeAction.Done] для скрытия клавиатуры.
- *
- * @param navController  NavController для возврата назад (popBackStack).
- *   В шторке это внутренний NavController CounterSheetContent.
- */
-@OptIn(ExperimentalMaterial3Api::class)
+private const val TAG = "CounterNav"
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 internal fun EditCounterScreen(
     navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
-    // Исправление 1: безопасный обход цепочки контекстов
     val activity = LocalContext.current.findActivity()
     val vm: CounterViewModel = hiltViewModel(activity)
     val uiState by vm.uiState.collectAsState()
     val editState = uiState.editState
-
-    // Исправление 2: контроллер клавиатуры для ImeAction.Done
     val keyboardController = LocalSoftwareKeyboardController.current
+
+    var newActionText by remember { mutableStateOf("") }
+    val actionValues = remember(editState.actionsRaw) {
+        editState.actionsRaw.trim()
+            .split("\\s+".toRegex())
+            .filter { it.isNotEmpty() }
+            .mapNotNull { it.toIntOrNull() }
+    }
+
+    // ── Отложенный popBackStack (аналог fix'а в CounterScreen) ───────────────
+    var popBackStackPending by remember { mutableStateOf(false) }
+    LaunchedEffect(popBackStackPending) {
+        Log.d(TAG, "[Edit] LaunchedEffect triggered: popBackStackPending=$popBackStackPending")
+        if (popBackStackPending) {
+            val entry = navController.currentBackStackEntry
+            Log.d(TAG, "[Edit] BackStackEntry: route=${entry?.destination?.route}, " +
+                    "lifecycleState=${entry?.lifecycle?.currentState}")
+            popBackStackPending = false
+            Log.d(TAG, "[Edit] Calling navController.popBackStack()")
+            val result = navController.popBackStack()
+            Log.d(TAG, "[Edit] popBackStack() returned: $result")
+        }
+    }
 
     Scaffold(
         modifier = modifier,
         topBar = {
             CenterAlignedTopAppBar(
                 navigationIcon = {
-                    // Кнопка «✕» — закрыть; проверяем несохранённые изменения (§11)
                     IconButton(onClick = {
+                        Log.d(TAG, "[Edit] X clicked. hasUnsavedChanges=${editState.hasUnsavedChanges}")
                         if (editState.hasUnsavedChanges) {
                             vm.requestDiscardChanges()
                         } else {
-                            navController.popBackStack()
+                            val entry = navController.currentBackStackEntry
+                            Log.d(TAG, "[Edit] Direct popBackStack. " +
+                                    "lifecycleState=${entry?.lifecycle?.currentState}")
+                            val result = navController.popBackStack()
+                            Log.d(TAG, "[Edit] popBackStack() returned: $result")
                         }
                     }) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = "Закрыть без сохранения"
-                        )
+                        Icon(Icons.Default.Close, contentDescription = "Закрыть без сохранения")
                     }
                 },
                 title = {
-                    Text(
-                        text = if (editState.isNewCounter) "Новый счётчик" else "Редактировать"
-                    )
+                    Text(if (editState.isNewCounter) "Новый счётчик" else "Редактировать")
                 },
                 actions = {
-                    // Кнопка «✓» — сохранить
                     IconButton(
-                        onClick = {
-                            if (vm.saveEditCounter()) navController.popBackStack()
-                        },
+                        onClick = { if (vm.saveEditCounter()) navController.popBackStack() },
                         enabled = editState.name.isNotBlank()
                     ) {
                         Icon(
@@ -115,148 +138,117 @@ internal fun EditCounterScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                // Исправление: imePadding() ДО verticalScroll — видимая область
-                // скроллируемого контента уменьшается на высоту клавиатуры, и Compose
-                // автоматически подскроллит до сфокусированного поля.
                 .imePadding()
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // ── §7.1 Название ─────────────────────────────────────────────────
             OutlinedTextField(
                 value = editState.name,
                 onValueChange = vm::onEditNameChange,
                 label = { Text("Название") },
                 placeholder = { Text("Например: Очки игрока 1") },
                 singleLine = true,
-                // Исправление: Done закрывает клавиатуру; пользователь сам тапает
-                // следующее поле — более естественный UX для формы с опциональными полями.
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Done
-                ),
-                keyboardActions = KeyboardActions(
-                    onDone = { keyboardController?.hide() }
-                ),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
                 modifier = Modifier.fillMaxWidth()
             )
-
-            // ── §7.2 Текущее значение ─────────────────────────────────────────
             OutlinedTextField(
                 value = editState.valueText,
                 onValueChange = vm::onEditValueChange,
                 label = { Text("Текущее значение") },
                 singleLine = true,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Done
-                ),
-                keyboardActions = KeyboardActions(
-                    onDone = { keyboardController?.hide() }
-                ),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
                 modifier = Modifier.fillMaxWidth()
             )
-
-            // ── §7.2 Значение сброса ──────────────────────────────────────────
             OutlinedTextField(
                 value = editState.resetValueText,
                 onValueChange = vm::onEditResetValueChange,
                 label = { Text("Значение сброса") },
                 supportingText = { Text("Долгое нажатие на карточку сбросит счётчик до этого значения") },
                 singleLine = true,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Done
-                ),
-                keyboardActions = KeyboardActions(
-                    onDone = { keyboardController?.hide() }
-                ),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
                 modifier = Modifier.fillMaxWidth()
             )
-
-            // ── §7.3 Цвет счётчика ────────────────────────────────────────────
-            Text(
-                text = "Цвет",
-                style = MaterialTheme.typography.labelLarge,
+            Text("Цвет", style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 4.dp)
-            )
-            ColorPickerRow(
-                selectedColorArgb = editState.colorArgb,
-                onColorSelected = vm::onEditColorChange,
-                modifier = Modifier.fillMaxWidth()
-            )
+                modifier = Modifier.padding(top = 4.dp))
+            ColorPickerRow(selectedColorArgb = editState.colorArgb, onColorSelected = vm::onEditColorChange,
+                modifier = Modifier.fillMaxWidth())
 
-            // ── §7.4 Шаги инкремента / декремента ────────────────────────────
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                OutlinedTextField(
-                    value = editState.incrementStepText,
-                    onValueChange = vm::onEditIncrementStepChange,
-                    label = { Text("Шаг +") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Number,
-                        imeAction = ImeAction.Done
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onDone = { keyboardController?.hide() }
-                    ),
-                    modifier = Modifier.weight(1f)
-                )
-                OutlinedTextField(
-                    value = editState.decrementStepText,
-                    onValueChange = vm::onEditDecrementStepChange,
-                    label = { Text("Шаг −") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Number,
-                        imeAction = ImeAction.Done
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onDone = { keyboardController?.hide() }
-                    ),
-                    modifier = Modifier.weight(1f)
-                )
+            OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text("Шаги", style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Spacer(Modifier.height(4.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Icon(Icons.Default.Add, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                        Text("Кнопка «+»", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
+                        OutlinedTextField(value = editState.incrementStepText, onValueChange = vm::onEditIncrementStepChange,
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
+                            keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+                            modifier = Modifier.width(88.dp))
+                    }
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Icon(Icons.Default.Remove, null, tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(20.dp))
+                        Text("Кнопка «−»", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
+                        OutlinedTextField(value = editState.decrementStepText, onValueChange = vm::onEditDecrementStepChange,
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
+                            keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+                            modifier = Modifier.width(88.dp))
+                    }
+                }
             }
 
-            // ── §7.5 Быстрые действия ─────────────────────────────────────────
-            // Исправление 2: числовая клавиатура + ImeAction.Done с hideKeyboard
-            OutlinedTextField(
-                value = editState.actionsRaw,
-                onValueChange = vm::onEditActionsRawChange,
-                label = { Text("Быстрые действия") },
-                placeholder = { Text("Например: 10 -5 20") },
-                supportingText = {
-                    Text("Числа через пробел. Тап на кнопку быстрого действия прибавляет (или убавляет) указанное значение.")
-                },
-                singleLine = true,
-                // Исправление 2
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Done
-                ),
-                keyboardActions = KeyboardActions(
-                    onDone = { keyboardController?.hide() }
-                ),
-                trailingIcon = if (editState.actionsRaw.isNotEmpty()) {
-                    {
-                        IconButton(onClick = vm::clearEditActions) {
-                            Icon(Icons.Default.Close, contentDescription = "Очистить")
+            OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text("Быстрые действия", style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    if (actionValues.isEmpty()) {
+                        Text("Нет добавленных действий", style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
+                    } else {
+                        FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            actionValues.forEachIndexed { index, value ->
+                                ActionEditorChip(value = value, onRemove = {
+                                    val updated = actionValues.toMutableList().also { it.removeAt(index) }
+                                    vm.onEditActionsRawChange(updated.joinToString(" "))
+                                })
+                            }
                         }
                     }
-                } else null,
-                modifier = Modifier.fillMaxWidth()
-            )
-
+                    HorizontalDivider()
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedTextField(value = newActionText, onValueChange = { newActionText = it },
+                            label = { Text("Значение") }, placeholder = { Text("Напр. −5") }, singleLine = true,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
+                            keyboardActions = KeyboardActions(onDone = {
+                                val v = newActionText.toIntOrNull()
+                                if (v != null) { vm.onEditActionsRawChange((actionValues + v).joinToString(" ")); newActionText = "" }
+                            }),
+                            modifier = Modifier.weight(1f))
+                        Button(onClick = {
+                            val v = newActionText.toIntOrNull()
+                            if (v != null) { vm.onEditActionsRawChange((actionValues + v).joinToString(" ")); newActionText = ""; keyboardController?.hide() }
+                        }, enabled = newActionText.toIntOrNull() != null) { Text("Добавить") }
+                    }
+                    Text("Тап на кнопку быстрого действия прибавляет (или убавляет) указанное значение.",
+                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
             Spacer(Modifier.height(16.dp))
         }
     }
 
-    // ── Диалог «Отменить изменения?» (§11) ───────────────────────────────────
+    // ── Диалог «Отменить изменения?» ──────────────────────────────────────────
     if (editState.showDiscardChangesDialog) {
         AlertDialog(
             onDismissRequest = vm::dismissDiscardChangesDialog,
@@ -265,8 +257,13 @@ internal fun EditCounterScreen(
             confirmButton = {
                 TextButton(
                     onClick = {
+                        Log.d(TAG, "[Edit] 'Отменить' clicked in discard dialog. " +
+                                "BackStackEntry: route=${navController.currentBackStackEntry?.destination?.route}, " +
+                                "lifecycleState=${navController.currentBackStackEntry?.lifecycle?.currentState}")
                         vm.dismissDiscardChangesDialog()
-                        navController.popBackStack()
+                        Log.d(TAG, "[Edit] dismissDiscardChangesDialog() done. " +
+                                "Setting popBackStackPending=true")
+                        popBackStackPending = true
                     },
                     colors = ButtonDefaults.textButtonColors(
                         contentColor = MaterialTheme.colorScheme.error
@@ -282,3 +279,36 @@ internal fun EditCounterScreen(
     }
 }
 
+@Composable
+private fun ActionEditorChip(
+    value: Int,
+    onRemove: () -> Unit
+) {
+    val label = if (value >= 0) "+$value" else "$value"
+    Surface(
+        shape = MaterialTheme.shapes.small,
+        color = MaterialTheme.colorScheme.secondaryContainer,
+        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(start = 12.dp, end = 4.dp, top = 2.dp, bottom = 2.dp)
+        ) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelLarge
+            )
+            Spacer(Modifier.width(2.dp))
+            IconButton(
+                onClick = onRemove,
+                modifier = Modifier.size(28.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Удалить действие $label",
+                    modifier = Modifier.size(14.dp)
+                )
+            }
+        }
+    }
+}

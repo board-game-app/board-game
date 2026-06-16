@@ -11,31 +11,12 @@ import ru.internet.boardgames.counter.presentation.CounterScreen
 import ru.internet.boardgames.counter.presentation.CounterSheetBodyContent
 import ru.internet.boardgames.counter.presentation.EditCounterScreen
 
-// ── Маршруты публичного графа ─────────────────────────────────────────────────
-
-/** Маршрут главного экрана счётчика */
 const val COUNTER_LIST_ROUTE = "counter_list"
-
-/** Маршрут экрана редактирования/создания счётчика */
 const val COUNTER_EDIT_ROUTE = "counter_edit"
 
-// ── Внутренние маршруты шторки ────────────────────────────────────────────────
-// Используются только внутри CounterSheetContent — изолированы от основного NavHost.
-
-/** Начальный экран внутри шторки — список счётчиков */
 private const val SHEET_LIST_ROUTE = "sheet_list"
-
-/** Экран редактирования внутри шторки */
 private const val SHEET_EDIT_ROUTE = "sheet_edit"
 
-// ── Граф фичи (встраивается в основной NavHost приложения) ───────────────────
-
-/**
- * Добавляет в граф навигации приложения два маршрута фичи «Счётчик»:
- * [COUNTER_LIST_ROUTE] и [COUNTER_EDIT_ROUTE].
- *
- * @param navController NavController основного приложения.
- */
 fun NavGraphBuilder.counterGraph(navController: NavHostController) {
     composable(route = COUNTER_LIST_ROUTE) {
         CounterScreen(navController = navController)
@@ -45,36 +26,29 @@ fun NavGraphBuilder.counterGraph(navController: NavHostController) {
     }
 }
 
-// ── CounterSheetContent — публичный composable для BottomSheet / панели ───────
-
 /**
- * Публичная точка входа для встраивания счётчика в ModalBottomSheet или боковую панель.
+ * @param isActive true — панель видима, диалоги показываются.
+ *                 false — панель скрыта, диалоги подавляются.
  *
- * Исправление 3: содержит собственный [NavHost] с маршрутами [SHEET_LIST_ROUTE] и
- * [SHEET_EDIT_ROUTE]. Переход в [EditCounterScreen] происходит **внутри** шторки,
- * а не поверх всего приложения, как было при вызове основного navController.
- *
- * Использование в :app — без параметров:
- * ```kotlin
- * // Было:
- * CounterSheetContent(
- *     onNavigateToEditCounter = { navController.navigate(COUNTER_EDIT_ROUTE) }
- * )
- * // Стало:
- * CounterSheetContent()
- * ```
+ * CounterSheetContent всегда остаётся в композиции (для анимаций),
+ * но при isActive = false все диалоги внутри CounterSheetBodyContent
+ * не отображаются, исключая конкуренцию с диалогами CounterScreen.
  */
 @Composable
-fun CounterSheetContent(modifier: Modifier = Modifier) {
+fun CounterSheetContent(
+    modifier: Modifier = Modifier,
+    isActive: Boolean = true
+) {
     val sheetNavController = rememberNavController()
 
     NavHost(
-        navController = sheetNavController,
+        navController    = sheetNavController,
         startDestination = SHEET_LIST_ROUTE,
-        modifier = modifier
+        modifier         = modifier
     ) {
         composable(route = SHEET_LIST_ROUTE) {
             CounterSheetBodyContent(
+                isActive = isActive,
                 onNavigateToEditCounter = {
                     sheetNavController.navigate(SHEET_EDIT_ROUTE)
                 }

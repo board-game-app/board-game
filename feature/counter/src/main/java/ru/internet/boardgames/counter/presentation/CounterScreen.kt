@@ -1,6 +1,6 @@
 package ru.internet.boardgames.counter.presentation
-
 import ru.internet.boardgames.counter.presentation.utils.findActivity
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,7 +19,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.GridView
-import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.ViewAgenda
 import androidx.compose.material3.AlertDialog
@@ -64,23 +63,8 @@ import ru.internet.boardgames.counter.domain.model.Counter
 import ru.internet.boardgames.counter.domain.model.Session
 import ru.internet.boardgames.counter.presentation.navigation.COUNTER_EDIT_ROUTE
 
-/**
- * Полноэкранный главный экран счётчика (§4 ТЗ).
- *
- * AppBar: гамбургер (слева) · «Все счётчики» (центр) · тоггл режима (справа).
- * Список: LazyVerticalGrid (2 колонки) для COMPACT, LazyColumn для WIDE.
- * FAB: открывает диалог «Новый счётчик» (§6).
- *
- * Изменение 1 (инверсия жестов):
- *   • Тап на карточку → перейти на EditCounterScreen.
- *   • Долгое нажатие → диалог сброса до resetValue.
- *
- * Изменение 4 (drawer):
- *   • Гамбургер открывает [SessionDrawer] (ModalNavigationDrawer).
- *   • Drawer синхронизируется с [CounterUiState.isDrawerOpen].
- *
- * internal: публичный вход — только через counterGraph в CounterNavGraph.kt.
- */
+private const val TAG = "CounterNav"
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun CounterScreen(
@@ -90,24 +74,34 @@ internal fun CounterScreen(
     val activity = LocalContext.current.findActivity()
     val vm: CounterViewModel = hiltViewModel(activity)
     val uiState by vm.uiState.collectAsState()
-
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    // ── Синхронизация VM → drawer UI ─────────────────────────────────────────
+    // ── Отложенная навигация ──────────────────────────────────────────────────
+    var navigateToEditorPending by remember { mutableStateOf(false) }
+    LaunchedEffect(navigateToEditorPending) {
+        Log.d(TAG, "LaunchedEffect triggered: navigateToEditorPending=$navigateToEditorPending")
+        if (navigateToEditorPending) {
+            val entry = navController.currentBackStackEntry
+            Log.d(TAG, "BackStackEntry: route=${entry?.destination?.route}, " +
+                    "lifecycleState=${entry?.lifecycle?.currentState}")
+            navigateToEditorPending = false
+            Log.d(TAG, "Calling navController.navigate($COUNTER_EDIT_ROUTE)")
+            navController.navigate(COUNTER_EDIT_ROUTE)
+            Log.d(TAG, "navController.navigate() returned. " +
+                    "currentDestination=${navController.currentDestination?.route}")
+        }
+    }
+
     LaunchedEffect(uiState.isDrawerOpen) {
         if (uiState.isDrawerOpen) drawerState.open()
         else if (drawerState.isOpen) drawerState.close()
     }
-
-    // ── Синхронизация gesture-закрытие drawer → VM ────────────────────────────
-    // Когда пользователь закрывает drawer свайпом — сбрасываем флаг в VM
     LaunchedEffect(drawerState) {
         snapshotFlow { drawerState.isClosed }.collect { isClosed ->
             if (isClosed) vm.closeDrawer()
         }
     }
-
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -138,7 +132,6 @@ internal fun CounterScreen(
             topBar = {
                 CenterAlignedTopAppBar(
                     navigationIcon = {
-                        // Гамбургер — открывает SessionDrawer (Изменение 4)
                         IconButton(onClick = vm::openDrawer) {
                             Icon(
                                 imageVector = Icons.Default.Menu,
@@ -155,7 +148,6 @@ internal fun CounterScreen(
                         )
                     },
                     actions = {
-                        // Тоггл режима карточек (§4.1, §5, §11)
                         IconButton(onClick = vm::toggleCardDisplayMode) {
                             Icon(
                                 imageVector = if (uiState.cardDisplayMode == CardDisplayMode.COMPACT)
@@ -191,12 +183,10 @@ internal fun CounterScreen(
                 onDecrement = { counter ->
                     vm.applyDelta(counter.id, -counter.decrementStep)
                 },
-                // Изменение 1: тап → перейти на EditCounterScreen
                 onTap = { counter ->
                     vm.startEditExistingCounter(counter)
                     navController.navigate(COUNTER_EDIT_ROUTE)
                 },
-                // Изменение 1: долгое нажатие → диалог сброса
                 onLongPress = { counter ->
                     vm.requestResetCounter(counter)
                 },
@@ -210,7 +200,6 @@ internal fun CounterScreen(
     }
 
     // ── Диалоги ───────────────────────────────────────────────────────────────
-
     if (uiState.showCreateSessionDialog) {
         CreateSessionDialog(
             onConfirm = vm::createSession,
@@ -227,34 +216,28 @@ internal fun CounterScreen(
     }
     if (uiState.showNewCounterDialog) {
         NewCounterDialog(
-            defaultName = uiState.newCounterDefaultName,
-            currentName = uiState.newCounterDialogName,
+            defaultName      = uiState.newCounterDefaultName,
+            currentName      = uiState.newCounterDialogName,
             currentColorArgb = uiState.newCounterDialogColorArgb,
-            onNameChange = vm::onNewCounterDialogNameChange,
-            onColorChange = vm::onNewCounterDialogColorChange,
-            onConfirm = vm::createCounterFromDialog,
-            onDismiss = vm::hideNewCounterDialog,
+            onNameChange     = vm::onNewCounterDialogNameChange,
+            onColorChange    = vm::onNewCounterDialogColorChange,
+            onConfirm        = vm::createCounterFromDialog,
+            onDismiss        = vm::hideNewCounterDialog,
             onExpandToEditor = {
+                Log.d(TAG, "onExpandToEditor called. " +
+                        "showNewCounterDialog=${uiState.showNewCounterDialog}")
                 vm.startNewCounterFromDialog()
-                navController.navigate(COUNTER_EDIT_ROUTE)
+                Log.d(TAG, "startNewCounterFromDialog() done. Setting navigateToEditorPending=true")
+                navigateToEditorPending = true
             }
         )
     }
     uiState.counterPendingReset?.let { counter ->
-        ResetConfirmDialog(
-            counter = counter,
-            onConfirm = vm::confirmResetCounter,
-            onDismiss = vm::dismissResetDialog
-        )
+        ResetConfirmDialog(counter = counter, onConfirm = vm::confirmResetCounter, onDismiss = vm::dismissResetDialog)
     }
     uiState.counterPendingDelete?.let { counter ->
-        DeleteConfirmDialog(
-            counter = counter,
-            onConfirm = vm::confirmDeleteCounter,
-            onDismiss = vm::dismissDeleteDialog
-        )
+        DeleteConfirmDialog(counter = counter, onConfirm = vm::confirmDeleteCounter, onDismiss = vm::dismissDeleteDialog)
     }
-    // Изменение 4: диалог подтверждения удаления сессии
     uiState.sessionPendingDelete?.let { session ->
         DeleteSessionConfirmDialog(
             session = session,
@@ -263,16 +246,7 @@ internal fun CounterScreen(
         )
     }
 }
-
 // ── Контент списка ────────────────────────────────────────────────────────────
-
-/**
- * Переключает между [CompactCounterGrid] и [WideCounterList] в зависимости от
- * [CounterUiState.cardDisplayMode], а также обрабатывает состояния загрузки и пустоты.
- *
- * Изменение 1: коллбэк переименован [onTap] (тап → редактировать),
- * [onLongPress] теперь инициирует сброс.
- */
 @Composable
 internal fun CounterListContent(
     uiState: CounterUiState,
@@ -291,14 +265,12 @@ internal fun CounterListContent(
                 CircularProgressIndicator()
             }
         }
-
         uiState.activeSession == null -> {
             EmptySessionsPlaceholder(
                 onCreateSession = onCreateSession,
                 modifier = modifier
             )
         }
-
         uiState.counters.isEmpty() -> {
             Box(modifier = modifier, contentAlignment = Alignment.Center) {
                 Text(
@@ -308,7 +280,6 @@ internal fun CounterListContent(
                 )
             }
         }
-
         uiState.cardDisplayMode == CardDisplayMode.COMPACT -> {
             CompactCounterGrid(
                 counters = uiState.counters,
@@ -321,7 +292,6 @@ internal fun CounterListContent(
                 modifier = modifier
             )
         }
-
         else -> {
             WideCounterList(
                 counters = uiState.counters,
@@ -336,9 +306,7 @@ internal fun CounterListContent(
         }
     }
 }
-
-// ── Компактная сетка 2 колонки (§5.1) ─────────────────────────────────────────
-
+// ── Компактная сетка 2 колонки ────────────────────────────────────────────────
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CompactCounterGrid(
@@ -375,9 +343,7 @@ private fun CompactCounterGrid(
         }
     }
 }
-
-// ── Широкий список (§5.2) ─────────────────────────────────────────────────────
-
+// ── Широкий список ────────────────────────────────────────────────────────────
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun WideCounterList(
@@ -412,9 +378,7 @@ private fun WideCounterList(
         }
     }
 }
-
-// ── Обёртка свайп-удалить (§5.4) ─────────────────────────────────────────────
-
+// ── Обёртка свайп-удалить ─────────────────────────────────────────────────────
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SwipeToDeleteWrapper(
@@ -423,7 +387,6 @@ private fun SwipeToDeleteWrapper(
 ) {
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = { value ->
-            // При достижении порога — запрашиваем подтверждение и возвращаем false (snap back)
             if (value == SwipeToDismissBoxValue.EndToStart) {
                 onDeleteRequest()
             }
@@ -434,7 +397,6 @@ private fun SwipeToDeleteWrapper(
         state = dismissState,
         enableDismissFromStartToEnd = false,
         backgroundContent = {
-            // Красный фон с иконкой удаления при свайпе влево
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -451,9 +413,7 @@ private fun SwipeToDeleteWrapper(
         content = { content() }
     )
 }
-
 // ── Пустое состояние ──────────────────────────────────────────────────────────
-
 @Composable
 private fun EmptySessionsPlaceholder(
     onCreateSession: () -> Unit,
@@ -477,9 +437,7 @@ private fun EmptySessionsPlaceholder(
         }
     }
 }
-
 // ── Диалоги (internal — переиспользуются в CounterSheetBody) ──────────────────
-
 @Composable
 internal fun CreateSessionDialog(onConfirm: (String) -> Unit, onDismiss: () -> Unit) {
     var name by remember { mutableStateOf("") }
@@ -503,7 +461,6 @@ internal fun CreateSessionDialog(onConfirm: (String) -> Unit, onDismiss: () -> U
         dismissButton = { TextButton(onClick = onDismiss) { Text("Отмена") } }
     )
 }
-
 @Composable
 internal fun SessionPickerDialog(
     sessions: List<Session>,
@@ -543,7 +500,6 @@ internal fun SessionPickerDialog(
         confirmButton = { TextButton(onClick = onDismiss) { Text("Закрыть") } }
     )
 }
-
 @Composable
 internal fun ResetConfirmDialog(
     counter: Counter,
@@ -570,7 +526,6 @@ internal fun ResetConfirmDialog(
         dismissButton = { TextButton(onClick = onDismiss) { Text("Отмена") } }
     )
 }
-
 @Composable
 internal fun DeleteConfirmDialog(
     counter: Counter,
@@ -597,11 +552,6 @@ internal fun DeleteConfirmDialog(
         dismissButton = { TextButton(onClick = onDismiss) { Text("Отмена") } }
     )
 }
-
-/**
- * Диалог подтверждения удаления сессии.
- * Изменение 4: используется из drawer.
- */
 @Composable
 internal fun DeleteSessionConfirmDialog(
     session: Session,

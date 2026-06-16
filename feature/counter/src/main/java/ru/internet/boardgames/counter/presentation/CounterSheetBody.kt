@@ -2,6 +2,7 @@ package ru.internet.boardgames.counter.presentation
 
 import android.content.Context
 import android.content.ContextWrapper
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,8 +22,12 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -30,54 +35,49 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 
-/**
- * Безопасный поиск Activity в цепочке контекстов.
- *
- * [ModalBottomSheet] и [CounterSidePanel] оборачивают контекст в
- * [ContextThemeWrapper], поэтому прямой каст
- *   `LocalContext.current as ComponentActivity`
- * падает с ClassCastException. Эта функция поднимается по цепочке
- * [ContextWrapper.baseContext] до нахождения [ComponentActivity].
- */
+private const val TAG = "CounterNav"
+
 private fun Context.findActivity(): ComponentActivity {
     var ctx = this
     while (ctx is ContextWrapper) {
         if (ctx is ComponentActivity) return ctx
         ctx = ctx.baseContext
     }
-    error("ComponentActivity не найдена в цепочке контекстов: $this")
+    error("ComponentActivity не найдена: $this")
 }
 
 /**
- * Тело счётчика для встраивания в CounterSidePanel (без TopAppBar).
- *
- * Разделяет тот же CounterViewModel (Activity scope) с CounterScreen —
- * состояние счётчиков единое в обоих режимах открытия.
- *
- * Изменения относительно оригинала:
- * - [findActivity()] вместо прямого каста (fix ClassCastException).
- * - Column получает fillMaxHeight() — контент заполняет всю панель.
- * - CounterListContent использует weight(1f) вместо heightIn(max=400dp) —
- *   список занимает доступное пространство, кнопка «Добавить» остаётся внизу.
- *
- * internal: публичный псевдоним [ru.internet.boardgames.counter.presentation.navigation.CounterSheetContent] — в CounterNavGraph.kt.
+ * @param isActive Управляет видимостью диалогов.
+ *   true (по умолчанию) — панель/шторка видима, диалоги отображаются нормально.
+ *   false — компонент в композиции, но скрыт; все диалоги подавляются,
+ *   чтобы не конкурировать с диалогами CounterScreen, подписанного
+ *   на тот же ViewModel.
  */
 @Composable
 internal fun CounterSheetBodyContent(
     modifier: Modifier = Modifier,
+    isActive: Boolean = true,
     onNavigateToEditCounter: (() -> Unit)? = null
 ) {
     val activity = LocalContext.current.findActivity()
     val vm: CounterViewModel = hiltViewModel(activity)
     val uiState by vm.uiState.collectAsState()
 
+    var navigateToEditorPending by remember { mutableStateOf(false) }
+    LaunchedEffect(navigateToEditorPending) {
+        if (navigateToEditorPending) {
+            navigateToEditorPending = false
+            Log.d(TAG, "[Sheet] Invoking onNavigateToEditCounter")
+            onNavigateToEditCounter?.invoke()
+        }
+    }
+
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .fillMaxHeight()              // ← ИСПРАВЛЕНО: было без fillMaxHeight
+            .fillMaxHeight()
             .navigationBarsPadding()
     ) {
-        // ── Компактная строка сессии ──────────────────────────────────────────
         if (uiState.activeSession != null) {
             Row(
                 modifier = Modifier
@@ -86,8 +86,8 @@ internal fun CounterSheetBodyContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text     = uiState.activeSession!!.name,
-                    style    = MaterialTheme.typography.titleMedium,
+                    text = uiState.activeSession!!.name,
+                    style = MaterialTheme.typography.titleMedium,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f)
@@ -103,15 +103,11 @@ internal fun CounterSheetBodyContent(
             HorizontalDivider()
         }
 
-        // ── Список счётчиков ──────────────────────────────────────────────────
-        // weight(1f) занимает всё доступное пространство Column;
-        // кнопка «Добавить» остаётся прижатой к низу панели.
-        // Было: heightIn(max = 400.dp) — ограничивало до половины экрана.
         CounterListContent(
-            uiState          = uiState,
-            onCreateSession  = vm::showCreateSessionDialog,
-            onIncrement      = { counter -> vm.applyDelta(counter.id, +counter.incrementStep) },
-            onDecrement      = { counter -> vm.applyDelta(counter.id, -counter.decrementStep) },
+            uiState         = uiState,
+            onCreateSession = vm::showCreateSessionDialog,
+            onIncrement     = { counter -> vm.applyDelta(counter.id, +counter.incrementStep) },
+            onDecrement     = { counter -> vm.applyDelta(counter.id, -counter.decrementStep) },
             onTap = { counter ->
                 if (onNavigateToEditCounter != null) {
                     vm.startEditExistingCounter(counter)
@@ -120,15 +116,14 @@ internal fun CounterSheetBodyContent(
                     vm.requestResetCounter(counter)
                 }
             },
-            onLongPress = vm::requestResetCounter,
+            onLongPress     = vm::requestResetCounter,
             onDeleteRequest = vm::requestDeleteCounter,
-            onAction = { counter, delta -> vm.applyDelta(counter.id, delta) },
-            modifier = Modifier
+            onAction        = { counter, delta -> vm.applyDelta(counter.id, delta) },
+            modifier        = Modifier
                 .fillMaxWidth()
-                .weight(1f)               // ← ИСПРАВЛЕНО: было heightIn(max = 400.dp)
+                .weight(1f)
         )
 
-        // ── Кнопка «Добавить счётчик» ────────────────────────────────────────
         if (uiState.activeSession != null) {
             OutlinedButton(
                 onClick  = vm::showNewCounterDialog,
@@ -143,51 +138,57 @@ internal fun CounterSheetBodyContent(
         }
     }
 
-    // ── Диалоги ───────────────────────────────────────────────────────────────
-
-    if (uiState.showCreateSessionDialog) {
-        CreateSessionDialog(
-            onConfirm = vm::createSession,
-            onDismiss = vm::hideCreateSessionDialog
-        )
-    }
-    if (uiState.showSessionPickerDialog) {
-        SessionPickerDialog(
-            sessions         = uiState.activeSessions,
-            currentSessionId = uiState.activeSession?.id,
-            onSelect         = vm::switchSession,
-            onDismiss        = vm::hideSessionPickerDialog
-        )
-    }
-    if (uiState.showNewCounterDialog) {
-        NewCounterDialog(
-            defaultName      = uiState.newCounterDefaultName,
-            currentName      = uiState.newCounterDialogName,
-            currentColorArgb = uiState.newCounterDialogColorArgb,
-            onNameChange     = vm::onNewCounterDialogNameChange,
-            onColorChange    = vm::onNewCounterDialogColorChange,
-            onConfirm        = vm::createCounterFromDialog,
-            onDismiss        = vm::hideNewCounterDialog,
-            onExpandToEditor = onNavigateToEditCounter?.let {
-                {
-                    vm.startNewCounterFromDialog()
-                    it()
-                }
-            }
-        )
-    }
-    uiState.counterPendingReset?.let { counter ->
-        ResetConfirmDialog(
-            counter   = counter,
-            onConfirm = vm::confirmResetCounter,
-            onDismiss = vm::dismissResetDialog
-        )
-    }
-    uiState.counterPendingDelete?.let { counter ->
-        DeleteConfirmDialog(
-            counter   = counter,
-            onConfirm = vm::confirmDeleteCounter,
-            onDismiss = vm::dismissDeleteDialog
-        )
+    // ── Диалоги — показываются только когда панель активна (isActive = true) ──
+    // Когда isActive = false, CounterScreen и CounterSheetBodyContent подписаны
+    // на один ViewModel и видят одно состояние. Без этой проверки оба компонента
+    // показывают диалог одновременно, и пользователь случайно нажимает
+    // на «невидимый» диалог шторки вместо диалога полного экрана.
+    if (isActive) {
+        if (uiState.showCreateSessionDialog) {
+            CreateSessionDialog(
+                onConfirm = vm::createSession,
+                onDismiss = vm::hideCreateSessionDialog
+            )
+        }
+        if (uiState.showSessionPickerDialog) {
+            SessionPickerDialog(
+                sessions         = uiState.activeSessions,
+                currentSessionId = uiState.activeSession?.id,
+                onSelect         = vm::switchSession,
+                onDismiss        = vm::hideSessionPickerDialog
+            )
+        }
+        if (uiState.showNewCounterDialog) {
+            NewCounterDialog(
+                defaultName      = uiState.newCounterDefaultName,
+                currentName      = uiState.newCounterDialogName,
+                currentColorArgb = uiState.newCounterDialogColorArgb,
+                onNameChange     = vm::onNewCounterDialogNameChange,
+                onColorChange    = vm::onNewCounterDialogColorChange,
+                onConfirm        = vm::createCounterFromDialog,
+                onDismiss        = vm::hideNewCounterDialog,
+                onExpandToEditor = if (onNavigateToEditCounter != null) {
+                    {
+                        Log.d(TAG, "[Sheet] onExpandToEditor called")
+                        vm.startNewCounterFromDialog()
+                        navigateToEditorPending = true
+                    }
+                } else null
+            )
+        }
+        uiState.counterPendingReset?.let { counter ->
+            ResetConfirmDialog(
+                counter   = counter,
+                onConfirm = vm::confirmResetCounter,
+                onDismiss = vm::dismissResetDialog
+            )
+        }
+        uiState.counterPendingDelete?.let { counter ->
+            DeleteConfirmDialog(
+                counter   = counter,
+                onConfirm = vm::confirmDeleteCounter,
+                onDismiss = vm::dismissDeleteDialog
+            )
+        }
     }
 }

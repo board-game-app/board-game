@@ -3,14 +3,13 @@ package ru.internet.boardgames.counter.presentation
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -26,25 +25,21 @@ import ru.internet.boardgames.counter.domain.model.Counter
 import ru.internet.boardgames.counter.presentation.theme.toCounterColor
 
 /**
- * Широкая горизонтальная карточка-«таблетка» счётчика (§5.2 ТЗ).
+ * Широкая карточка для режима списка.
  *
  * Структура:
- *   • Название над таблеткой (~14sp).
- *   • Горизонтальная «таблетка» во всю ширину:
- *       [−] (тёмная кнопка слева) | значение (~40sp, центр) | [+] (тёмная кнопка справа)
- *       Фон = цвет счётчика.
- *   • Кнопки быстрых действий (§5.3), если actions не пусты.
+ *  ┌──────────────────────────────────────────────┐
+ *  │                     −                         │ ← 44dp, цвет счётчика
+ *  ├─────────────┬────────────────────┬────────────┤
+ *  │ отриц. chips│  Название / Число  │ полож. chips│ ← авто высота
+ *  │  (2 кол.)  │  тап=ред, долг=сброс│  (2 кол.)  │
+ *  ├─────────────┴────────────────────┴────────────┤
+ *  │                     +                         │ ← 44dp, цвет счётчика
+ *  └──────────────────────────────────────────────┘
  *
- * Жесты (Изменение 1):
- *   • Тап на таблетку (кроме кнопок −/+) → открыть EditCounterScreen ([onTap]).
- *   • Долгое нажатие → диалог сброса до resetValue ([onLongPress]).
- *
- * @param onTap          Тап по карточке — перейти на экран редактирования.
- * @param onLongPress    Долгое нажатие — показать диалог сброса.
- * @param onIncrement    Нажатие «+».
- * @param onDecrement    Нажатие «−».
- * @param onDeleteRequest Свайп влево — запросить подтверждение удаления.
- * @param onAction       Нажатие кнопки быстрого действия.
+ * Chips встроены прямо в среднюю зону, отдельного ActionButtonsRow нет.
+ * Если на стороне только одна кнопка — она растягивается на обе колонки.
+ * Если actions пустой — средняя зона занимает полную ширину.
  */
 @Composable
 internal fun WideCounterCard(
@@ -58,94 +53,181 @@ internal fun WideCounterCard(
     modifier: Modifier = Modifier
 ) {
     val counterColor = counter.colorArgb.toCounterColor()
+    val cardBackground = MaterialTheme.colorScheme.surfaceContainer
 
-    Column(modifier = modifier.fillMaxWidth()) {
-        // ── Название над таблеткой (§5.2) ────────────────────────────────────
-        Text(
-            text = counter.name,
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
+    // Сортировка: отрицательные по убыванию модуля (−10, −5),
+    //             положительные по убыванию значения (+10, +5)
+    val negatives = counter.actions.filter { it < 0 }.sortedBy { it }
+    val positives = counter.actions.filter { it > 0 }.sortedBy { it }
+    val hasActions = negatives.isNotEmpty() || positives.isNotEmpty()
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+    ) {
+
+        // ── Верхняя полоса: кнопка «−» ───────────────────────────────────────
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 8.dp, bottom = 6.dp, end = 8.dp)
-        )
+                .height(44.dp)
+                .background(counterColor)
+                .clickable(onClick = onDecrement),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "−",
+                style = MaterialTheme.typography.headlineMedium,
+                color = Color.White
+            )
+        }
 
-        // ── Таблетка (§5.2) ───────────────────────────────────────────────────
-        // combinedClickable на всей таблетке: тап = редактировать, долгий тап = сброс.
-        // Кнопки −/+ внутри имеют свой clickable и поглощают события — до Row не дойдут.
+        // ── Средняя зона: chips + название/значение + chips ──────────────────
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(72.dp)
-                .clip(RoundedCornerShape(36.dp))
-                .background(counterColor)
-                .combinedClickable(
-                    onClick = onTap,
-                    onLongClick = onLongPress
-                ),
+                .background(cardBackground),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // ── Кнопка «−» (тёмный полупрозрачный кружок, слева) ────────────
-            Box(
-                modifier = Modifier
-                    .padding(start = 8.dp)
-                    .size(56.dp)
-                    .clip(CircleShape)
-                    .background(Color.Black.copy(alpha = 0.28f))
-                    .clickable(onClick = onDecrement),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "−",
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = Color.White
+
+            // Левая колонка: отрицательные chips
+            if (negatives.isNotEmpty()) {
+                SideChipGrid(
+                    actions = negatives,
+                    counterColor = counterColor,
+                    onAction = onAction,
+                    modifier = Modifier
+                        .weight(2f)
+                        .padding(horizontal = 6.dp, vertical = 10.dp)
                 )
+            } else if (hasActions) {
+                // Держим пропорцию если с другой стороны есть chips
+                Box(modifier = Modifier.weight(2f))
             }
 
-            // ── Значение (центр, ~40sp) ───────────────────────────────────────
-            // Клика нет — обрабатывается combinedClickable родительского Row
-            Box(
-                modifier = Modifier.weight(1f),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = counter.value.toString(),
-                    style = MaterialTheme.typography.displaySmall, // ~40sp Bold
-                    color = Color.White,
-                    textAlign = TextAlign.Center
-                )
-            }
-
-            // ── Кнопка «+» (тёмный полупрозрачный кружок, справа) ───────────
+            // Центр: название + значение (тап = редактор, долгое = сброс)
             Box(
                 modifier = Modifier
-                    .padding(end = 8.dp)
-                    .size(56.dp)
-                    .clip(CircleShape)
-                    .background(Color.Black.copy(alpha = 0.28f))
-                    .clickable(onClick = onIncrement),
+                    .weight(1f)
+                    .combinedClickable(
+                        onClick = onTap,
+                        onLongClick = onLongPress
+                    )
+                    .padding(vertical = 12.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = "+",
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = Color.White
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                ) {
+                    Text(
+                        text = counter.name,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = counter.value.toString(),
+                        style = MaterialTheme.typography.headlineLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        textAlign = TextAlign.Center,
+                        maxLines = 1,
+                        overflow = TextOverflow.Visible
+                    )
+                }
+            }
+
+            // Правая колонка: положительные chips
+            if (positives.isNotEmpty()) {
+                SideChipGrid(
+                    actions = positives,
+                    counterColor = counterColor,
+                    onAction = onAction,
+                    modifier = Modifier
+                        .weight(2f)
+                        .padding(horizontal = 6.dp, vertical = 10.dp)
                 )
+            } else if (hasActions) {
+                Box(modifier = Modifier.weight(2f))
             }
         }
 
-        // ── Кнопки быстрых действий (§5.3) ───────────────────────────────────
-        if (counter.actions.isNotEmpty()) {
-            ActionButtonsRow(
-                actions = counter.actions,
-                counterColor = counterColor,
-                onAction = onAction,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 4.dp)
+        // ── Нижняя полоса: кнопка «+» ────────────────────────────────────────
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(44.dp)
+                .background(counterColor)
+                .clickable(onClick = onIncrement),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "+",
+                style = MaterialTheme.typography.headlineMedium,
+                color = Color.White
             )
+        }
+    }
+}
+
+/**
+ * Сетка chips для боковой колонки: 2 chips в ряд,
+ * если в ряду одна кнопка — занимает обе колонки.
+ *
+ * Пример для [−10, −5]:
+ *  ┌──────┬──────┐
+ *  │ -10  │  -5  │
+ *  └──────┴──────┘
+ *
+ * Пример для [−10]:
+ *  ┌─────────────┐
+ *  │    -10      │
+ *  └─────────────┘
+ */
+@Composable
+private fun SideChipGrid(
+    actions: List<Int>,
+    counterColor: Color,
+    onAction: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val rows = actions.chunked(2)
+
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        rows.forEach { rowItems ->
+            if (rowItems.size == 2) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    ActionChip(
+                        step = rowItems[0],
+                        counterColor = counterColor,
+                        onAction = onAction,
+                        modifier = Modifier.weight(1f)
+                    )
+                    ActionChip(
+                        step = rowItems[1],
+                        counterColor = counterColor,
+                        onAction = onAction,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            } else {
+                // Одна кнопка — растягивается на обе колонки
+                ActionChip(
+                    step = rowItems[0],
+                    counterColor = counterColor,
+                    onAction = onAction,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         }
     }
 }

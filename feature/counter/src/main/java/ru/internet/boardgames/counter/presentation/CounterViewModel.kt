@@ -185,20 +185,32 @@ class CounterViewModel @Inject constructor(
      * по displayOrder счётчика.
      */
     fun showNewCounterDialog() {
-        val prefillActions = _uiState.value.counters
+        val state = _uiState.value
+
+        // Цвета, уже занятые счётчиками текущей сессии
+        val usedColors = state.counters.map { it.colorArgb }.toSet()
+
+        // Первый цвет из палитры, которого ещё нет ни у одного счётчика.
+        // Если все 10 цветов заняты — берём первый в палитре (циклично).
+        val suggestedColor = counterColorPalette.firstOrNull { it !in usedColors }
+            ?: counterColorPalette.first()
+
+        // Prefill actions из последнего счётчика — логика не изменилась
+        val prefillActions = state.counters
             .maxByOrNull { it.displayOrder }
             ?.actions
             ?: emptyList()
 
-        _uiState.update { state ->
-            state.copy(
-                showNewCounterDialog = true,
-                newCounterDialogName = state.newCounterDefaultName,
-                newCounterDialogColorArgb = DEFAULT_COUNTER_COLOR_ARGB,
-                newCounterPrefillActions = prefillActions
+        _uiState.update {
+            it.copy(
+                showNewCounterDialog      = true,
+                newCounterDialogName      = it.newCounterDefaultName,
+                newCounterDialogColorArgb = suggestedColor,   // ← было DEFAULT_COUNTER_COLOR_ARGB
+                newCounterPrefillActions  = prefillActions
             )
         }
     }
+
 
     fun hideNewCounterDialog() {
         _uiState.update { it.copy(showNewCounterDialog = false) }
