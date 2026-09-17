@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -27,16 +28,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import ru.internet.boardgames.soundquiz.R
+import androidx.compose.ui.tooling.preview.Preview
 import ru.internet.boardgames.soundquiz.domain.model.ActiveCard
 import ru.internet.boardgames.soundquiz.domain.model.CardState
+import ru.internet.boardgames.soundquiz.domain.model.Word
 import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.changedToDown
-import androidx.compose.ui.input.pointer.changedToUp
 
 @Composable
 fun ActiveCardView(
@@ -53,9 +55,9 @@ fun ActiveCardView(
     val isRevealed = activeCard.state == CardState.REVEALED
 
     val rotationY by animateFloatAsState(
-        targetValue    = if (isRevealed) 180f else 0f,
-        animationSpec  = tween(durationMillis = 300, easing = FastOutSlowInEasing),
-        label          = "card_flip_rotation"
+        targetValue   = if (isRevealed) 180f else 0f,
+        animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
+        label         = "card_flip_rotation"
     )
     val showFront = rotationY > 90f
 
@@ -66,11 +68,14 @@ fun ActiveCardView(
             modifier  = Modifier
                 .fillMaxWidth(0.85f)
                 .graphicsLayer {
-                    this.rotationY    = rotationY
-                    cameraDistance    = 12f * density
+                    this.rotationY = rotationY
+                    cameraDistance = 12f * density
                 },
             shape     = RoundedCornerShape(16.dp),
-            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 16.dp)
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 16.dp),
+            colors    = CardDefaults.elevatedCardColors(
+                containerColor = Color(cardColor)
+            )
         ) {
             if (showFront) {
                 FrontFace(
@@ -82,28 +87,58 @@ fun ActiveCardView(
                     modifier         = Modifier.graphicsLayer { this.rotationY = 180f }
                 )
             } else {
-                BackFace(categoryName = categoryName, cardColor = Color(cardColor))
+                BackFace(categoryName = categoryName)
             }
         }
     }
 }
 
+/**
+ * Рубашка карточки.
+ *
+ * Фон задаётся на уровне [ElevatedCard] через [CardDefaults.elevatedCardColors],
+ * поэтому [cardColor] здесь больше не нужен — параметр убран во избежание путаницы.
+ * Весь текст отображается через [OutlinedText]: тонкая тёмная обводка обеспечивает
+ * читаемость на любом цвете категории без перебора с контрастом.
+ */
 @Composable
-private fun BackFace(categoryName: String, cardColor: Color, modifier: Modifier = Modifier) {
+private fun BackFace(categoryName: String, modifier: Modifier = Modifier) {
     Column(
-        modifier               = modifier.fillMaxWidth().height(280.dp).padding(24.dp),
-        horizontalAlignment    = Alignment.CenterHorizontally,
-        verticalArrangement    = Arrangement.Center
+        modifier            = modifier
+            .fillMaxWidth()
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
-        Text("♪", style = MaterialTheme.typography.displayMedium,
-            color = Color.White.copy(alpha = 0.6f), textAlign = TextAlign.Center)
+        // Иконка — без изменений
+        OutlinedText(
+            text         = "♪",
+            style        = MaterialTheme.typography.displayMedium,
+            color        = Color.White.copy(alpha = 1f),
+            textAlign    = TextAlign.Center,
+            outlineWidth = 6f
+        )
         Spacer(Modifier.height(16.dp))
-        Text(categoryName, style = MaterialTheme.typography.headlineSmall,
-            color = Color.White, textAlign = TextAlign.Center)
-        Spacer(Modifier.height(24.dp))
-        Text(stringResource(R.string.sound_quiz_tap_to_flip),
-            style = MaterialTheme.typography.bodyMedium,
-            color = Color.White.copy(alpha = 0.7f), textAlign = TextAlign.Center)
+        // Название категории — главный элемент (как слово в CardBack шпиона):
+        OutlinedText(
+            text         = categoryName,
+            style        = MaterialTheme.typography.headlineLarge.copy(
+                               fontWeight = FontWeight.Bold
+                           ),
+            color        = Color.White,
+            textAlign    = TextAlign.Center,
+            outlineWidth = 7f
+        )
+        Spacer(Modifier.height(12.dp))
+        // Подсказка — второстепенный элемент (как подпись категории в CardBack шпиона):
+        OutlinedText(
+            text         = stringResource(R.string.sound_quiz_tap_to_flip),
+            style        = MaterialTheme.typography.bodyMedium,
+            color        = Color.White.copy(alpha = 0.90f),
+            outlineColor = Color.Black.copy(alpha = 0.20f),
+            outlineWidth = 4f,
+            textAlign    = TextAlign.Center
+        )
     }
 }
 
@@ -173,7 +208,6 @@ private fun FrontFace(
             modifier         = Modifier.fillMaxWidth()
         )
 
-        // Слово с blur-эффектом: читаемо только при нажатии
         Text(
             text      = word,
             style     = MaterialTheme.typography.displayLarge,
@@ -184,8 +218,71 @@ private fun FrontFace(
         )
 
         Button(onClick = onWordExplained, modifier = Modifier.fillMaxWidth()) {
-            Text(stringResource(R.string.sound_quiz_explained),
-                style = MaterialTheme.typography.titleMedium)
+            Text(
+                text  = stringResource(R.string.sound_quiz_explained),
+                style = MaterialTheme.typography.titleMedium
+            )
         }
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Previews
+// ─────────────────────────────────────────────────────────────────────────────
+
+private val previewWord = Word(id = 1L, categoryId = 1L, word = "Контрабас")
+private const val PREVIEW_COLOR = 0xFF2196F3.toInt() // Material Blue 500
+
+/** Карточка рубашкой вверх — игрок ещё не перевернул её */
+@Preview(name = "ActiveCard — рубашка (FACE_DOWN)", showBackground = true)
+@Composable
+private fun PreviewActiveCard_FaceDown() {
+    MaterialTheme {
+        ActiveCardView(
+            activeCard       = ActiveCard(stackIndex = 0, word = previewWord, state = CardState.FACE_DOWN),
+            categoryName     = "Музыка",
+            cardColor        = PREVIEW_COLOR,
+            timerProgress    = 1f,
+            timerRemainingMs = 60_000L,
+            onCardTap        = {},
+            onWordExplained  = {},
+            onFirstWordPress = {}
+        )
+    }
+}
+
+/** Карточка лицом — таймер идёт, слово отображается (в превью — с blur, т.к. палец не нажат) */
+@Preview(name = "ActiveCard — лицо, таймер ~50% (REVEALED)", showBackground = true)
+@Composable
+private fun PreviewActiveCard_Revealed() {
+    MaterialTheme {
+        ActiveCardView(
+            activeCard       = ActiveCard(stackIndex = 0, word = previewWord, state = CardState.REVEALED),
+            categoryName     = "Музыка",
+            cardColor        = PREVIEW_COLOR,
+            timerProgress    = 0.5f,
+            timerRemainingMs = 30_000L,
+            onCardTap        = {},
+            onWordExplained  = {},
+            onFirstWordPress = {}
+        )
+    }
+}
+
+/** Карточка лицом — таймер критически мал */
+@Preview(name = "ActiveCard — лицо, таймер < 10% (REVEALED)", showBackground = true)
+@Composable
+private fun PreviewActiveCard_RevealedLowTimer() {
+    MaterialTheme {
+        ActiveCardView(
+            activeCard       = ActiveCard(stackIndex = 0, word = previewWord, state = CardState.REVEALED),
+            categoryName     = "Музыка",
+            cardColor        = PREVIEW_COLOR,
+            timerProgress    = 0.08f,
+            timerRemainingMs = 4_800L,
+            onCardTap        = {},
+            onWordExplained  = {},
+            onFirstWordPress = {}
+        )
     }
 }
